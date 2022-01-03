@@ -1,0 +1,31 @@
+const data = {
+  allAccessLists: [
+    { name: "dashboard", label: "Dashboard" },
+    { name: "bookings", label: "Bookings" },
+    { name: "clients", label: "Clients" },
+    { name: "requests", label: "Requests" },
+    { name: "stories", label: "Stories" },
+    { name: "categories", label: "Categories" },
+    { name: "destinations", label: "Destinations" },
+    { name: "packages", label: "Packages" },
+    { name: "photographers", label: "Photographers" },
+    { name: "payments", label: "Payments" },
+    { name: "feedbackResponse", label: "Feedback & Response" },
+    { name: "usersAndPermissions", label: "User And Permissions" },
+  ],
+  access: {
+    dashboard: false,
+    bookings: false,
+    clients: false,
+    requests: false,
+    stories: false,
+    categories: false,
+    destinations: false,
+    packages: false,
+    photographers: false,
+    payments: false,
+    feedbackResponse: false,
+    usersAndPermissions: false,
+  },
+};
+export default data;
