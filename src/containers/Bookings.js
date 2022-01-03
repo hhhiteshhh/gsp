@@ -33,7 +33,6 @@ function BookingsContainer() {
         // this.setState({ users }, () => console.log(this.state.users));
       });
   };
-  console.log(users, "hitesh");
   return (
     <>
       <Route

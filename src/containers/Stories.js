@@ -30,7 +30,6 @@ function StoriesContainer() {
           return user;
         });
         setUsers(users1);
-        // this.setState({ users }, () => console.log(this.state.users));
       });
   };
   return (

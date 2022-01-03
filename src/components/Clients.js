@@ -2,44 +2,26 @@ import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import Layout from "../layouts/Layout";
 import Paper from "@material-ui/core/Paper";
-
-const templateTabs = [
-  {
-    label: "Pending",
-    tooltip: "Click to approve pending users",
-    data: [],
-    route: "/clients/pending",
-    primaryField: "name",
-    primaryFieldFallback: "phone", // Optional
-    secondaryField: "email",
-    avatarField: "src",
-    decorators: {
-      conditionField: "status",
-      options: ["pending", "approved", "unidentified"],
-      colors: ["yellow", "green", "red"],
-    },
-  },
-  {
-    label: "Approved",
-    tooltip: "Click to approve approved users",
-    data: [],
-    route: "/clients/approved",
-    primaryField: "name",
-    secondaryField: "email",
-    avatarField: "logo",
-    decorators: {
-      conditionField: "currentStatus",
-      options: ["pending", "authorized", "unidentified"],
-      colors: ["teal", "cyan", "magenta"],
-    },
-  },
-];
+import ClientDetails from "./ClientDetails";
 
 class Clients extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      tabs: templateTabs,
+      tabs: [
+        {
+          label: "Clients",
+          tooltip: "click to see user detail",
+          data: props.users,
+          route: "/clients/users",
+          primaryField: "firstName",
+          primaryFieldFallback: "phoneNumber",
+          // Optional
+          secondaryField: "firstName",
+          secondaryFieldFallback: "email", // Optional
+          avatarField: "displayPictureUrl",
+        },
+      ],
       user: null,
       users: [],
     };
@@ -53,19 +35,12 @@ class Clients extends Component {
     this.setInitialValues(next);
     if (next.match.params.hasOwnProperty("tab")) {
       let tab = next.match.params["tab"];
-      if (tab === "pending" && next.match.params.hasOwnProperty("id")) {
+      if (tab === "users" && next.match.params.hasOwnProperty("id")) {
         this.setState({
           user: this.state.tabs[0].data[next.match.params["id"]],
         });
-      } else if (tab === "approved" && next.match.params.hasOwnProperty("id")) {
-        this.setState({
-          user: this.state.tabs[1].data[next.match.params["id"]],
-        });
-      } else if (tab === "new") {
-        this.setState({ user: null });
       }
     } else this.setState({ user: null });
-    // if (next.match.path === "/dashboard/new") alert("NEW");
   }
 
   listClickHandler = (value) => {
@@ -83,13 +58,14 @@ class Clients extends Component {
 
   render() {
     const { tabs, users, user } = this.state;
+    // console.log(this.props.db);
     return (
       <Layout
         tabs={tabs}
         search={{
           data: users, // Optional, In case if you not providing this, tabs data will be placed.
           hintText: "Search Users", // Optional
-          labelField: "email",
+          labelField: "firstName",
         }}
         fabClickHandler={() => {
           this.props.history.push("/dashboard/new");
@@ -98,9 +74,11 @@ class Clients extends Component {
       >
         <Paper style={{ width: "100%", height: "100%" }}>
           {users.length > 0 && user ? (
-            <div>
-              You Have Selected: {user.name}, {user.email}, {user.phone}
-            </div>
+            <ClientDetails
+              user={user}
+              bookings={this.props.bookings}
+              props={this.props}
+            />
           ) : (
             <div
               style={{
@@ -120,5 +98,3 @@ class Clients extends Component {
 }
 
 export default withRouter(Clients);
-
-// Categories

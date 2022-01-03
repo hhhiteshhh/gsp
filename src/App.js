@@ -46,7 +46,6 @@ const RouteLoader = ({ component: Component, user, ...props }) => (
 );
 
 const App = ({ user }) => {
-  // console.log(user, "gandhi");
   return (
     <Router>
       <Switch>

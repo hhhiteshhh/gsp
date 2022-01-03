@@ -1,44 +1,36 @@
-import React from "react";
+import React, { useState } from "react";
 import { withFirebase } from "../firebase";
 import withUser from "../hoc/withUser";
 import { Route } from "react-router-dom";
 import Clients from "../components/Clients";
 
-function ClientsContainer() {
-  const [users, setUsers] = React.useState([]);
+function ClientsContainer(props) {
+  const [usersList, setUserList] = useState([]);
+  const [allBookings, setAllBookings] = useState([]);
   React.useEffect(() => {
-    fetchUsers();
+    fetchCollectionDocument("users", setUserList);
+    fetchCollectionDocument("bookings", setAllBookings);
   }, []);
-  const fetchUsers = () => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => {
-        return response.json();
-      })
-      .then((json) => {
-        const users1 = json.map((element, index) => {
-          const user = element;
-          user.src = `https://cdn4.iconfinder.com/data/icons/user-avatar-flat-icons/512/User_Avatar-${
-            index + 10
-          }-512.png`;
-          user.logo = user.src;
-          user.status = ["pending", "approved", "unidentified"][
-            Math.floor(Math.random() * 3)
-          ];
-          user.currentStatus = ["pending", "unidentified", "authorized"][
-            Math.floor(Math.random() * 3)
-          ];
-          return user;
-        });
-        setUsers(users1);
-        // this.setState({ users }, () => console.log(this.state.users));
+  const fetchCollectionDocument = (dbName, setterFunction) => {
+    let collectionRef = props.db.collection(dbName);
+    collectionRef.onSnapshot((obj) => {
+      const tempList = [];
+      obj.forEach((doc) => {
+        const data = doc.data();
+        data.id = doc.id;
+        tempList.push(data);
       });
+      setterFunction(tempList);
+    });
   };
   return (
     <>
       <Route
         exact
         path={["/clients", "/clients/:tab/:id"]}
-        render={(props) => <Clients props={props} users={users}/>}
+        render={(props) => (
+          <Clients props={props} users={usersList} bookings={allBookings} />
+        )}
       />
     </>
   );

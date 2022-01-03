@@ -9,7 +9,6 @@ function NothingToShow(props) {
   function logoutFunction(e) {
     e.preventDefault();
     props.firebase.logOut(props);
-    // console.log('logout');
   }
   function reloadFunction(e) {
     e.preventDefault();

@@ -38,7 +38,6 @@ class DashboardContainer extends Component {
         });
         this.setState(
           { users }
-          // () => console.log(this.state.users)
         );
       });
   };
