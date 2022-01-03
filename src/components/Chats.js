@@ -8,7 +8,7 @@ const templateTabs = [
     label: "Pending",
     tooltip: "Click to approve pending users",
     data: [],
-    route: "/destinations/pending",
+    route: "/chats/pending",
     primaryField: "name",
     primaryFieldFallback: "phone", // Optional
     secondaryField: "email",
@@ -23,7 +23,7 @@ const templateTabs = [
     label: "Approved",
     tooltip: "Click to approve approved users",
     data: [],
-    route: "/destinations/approved",
+    route: "/chats/approved",
     primaryField: "name",
     secondaryField: "email",
     avatarField: "logo",
@@ -35,7 +35,7 @@ const templateTabs = [
   },
 ];
 
-class Destinations extends Component {
+class FeedbackResponse extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -119,6 +119,6 @@ class Destinations extends Component {
   }
 }
 
-export default withRouter(Destinations);
+export default withRouter(FeedbackResponse);
 
-// Destinations
+// FeedbackResponse

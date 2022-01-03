@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { withRouter } from "react-router-dom";
 import { makeStyles } from "@material-ui/core/styles";
 import Collapse from "@material-ui/core/Collapse";
@@ -19,7 +19,7 @@ import withUser from "../../hoc/withUser";
 import StaticVersionDisplay from "./StaticVersionDisplay";
 import ReceiptIcon from "@material-ui/icons/Payment";
 import DashboardCustomizeIcon from "@material-ui/icons/DashboardOutlined";
-import Info from "@material-ui/icons/InfoOutlined";
+import Info from "@material-ui/icons/ChatBubbleOutlineOutlined";
 import Bar from "@material-ui/icons/BarChart";
 import Location from "@material-ui/icons/LocationOnOutlined";
 import Photo from "@material-ui/icons/PhotoOutlined";
@@ -87,6 +87,7 @@ function DrawerContent(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(props.open);
   const [innerMenu, setInnerMenu] = React.useState(false);
+  const [innerMenu2, setInnerMenu2] = React.useState(false);
   const [selectedIndex, setSelectedIndex] = React.useState(null);
   const handlePageTitle = (title, index) => setSelectedIndex(index);
   const handleDrawerOpen = () => {
@@ -112,7 +113,15 @@ function DrawerContent(props) {
     FEEDBACKRESPONSE: (e) => props.history.push("/dashboard"),
   };
   const selectedStyle = (path) => ({
-    color: props.match.path === path ? "blue" : "",
+    // color: props.match.path === path ? "blue" : "",
+    color:
+      ((path === "/destinations" || path === "/stories") &&
+        props.match.path === "/stories") ||
+      ((path === "/categories" || path === "/packages") &&
+        props.match.path === "/packages") ||
+      props.match.path === path
+        ? "blue"
+        : "",
   });
   const listItems = [
     {
@@ -123,11 +132,35 @@ function DrawerContent(props) {
     },
     {
       path: "/bookings",
-      title: "Bookings",
+      title: "Manage Bookings",
       access: "bookings",
       icon: (path) => <ClientIcon style={selectedStyle(path)} />,
     },
-
+    {
+      path: "/destinations",
+      title: "Manage Destinations",
+      access: "destinationsAndStories",
+      children: false,
+      icon: (path) => <Location style={selectedStyle(path)} />,
+      childRoutes: [
+        {
+          path: "/destinations",
+          title: "Destinations",
+          icon: (path) => <Location style={selectedStyle(path)} />,
+        },
+        {
+          path: "/stories",
+          title: "Stories",
+          icon: (path) => <Photo style={selectedStyle(path)} />,
+        },
+      ],
+    },
+    {
+      path: "/photographers",
+      title: "Manage Photographers",
+      access: "photographers",
+      icon: (path) => <SupervisorAccount style={selectedStyle(path)} />,
+    },
     {
       path: "/clients",
       title: "Clients",
@@ -135,52 +168,35 @@ function DrawerContent(props) {
       icon: (path) => <SupervisorAccount style={selectedStyle(path)} />,
     },
     {
-      path: "/requests",
-      title: "Requests",
-      access: "requests",
-      icon: (path) => <Bar style={selectedStyle(path)} />,
-    },
-    {
-      path: "/stories",
-      title: "Stories",
-      access: "stories",
-      icon: (path) => <Photo style={selectedStyle(path)} />,
-    },
-    {
       path: "/categories",
-      title: "Categories",
-      access: "categories",
+      title: "Categories & Packages",
+      access: "categoriesAndPackages",
+      children: false,
       icon: (path) => <CategoryOutlined style={selectedStyle(path)} />,
+      childRoutes: [
+        {
+          path: "/categories",
+          title: "Categories",
+          icon: (path) => <CategoryOutlined style={selectedStyle(path)} />,
+        },
+        {
+          path: "/packages",
+          title: "Packages",
+          icon: (path) => <Inventory style={selectedStyle(path)} />,
+        },
+      ],
     },
     {
-      path: "/destinations",
-      title: "Destinations",
-      access: "destinations",
-      icon: (path) => <Location style={selectedStyle(path)} />,
-    },
-    {
-      path: "/packages",
-      title: "Packages",
-      access: "packages",
-      icon: (path) => <Inventory style={selectedStyle(path)} />,
-    },
-    {
-      path: "/photographers",
-      title: "Photographers",
-      access: "photographers",
-      icon: (path) => <SupervisorAccount style={selectedStyle(path)} />,
+      path: "/chats",
+      title: "Chats",
+      access: "chats",
+      icon: (path) => <Info style={selectedStyle(path)} />,
     },
     {
       path: "/payments",
       title: "Payments",
       access: "payments",
       icon: (path) => <ReceiptIcon style={selectedStyle(path)} />,
-    },
-    {
-      path: "/feedbackResponse",
-      title: "FeedBack Response",
-      access: "feedbackResponse",
-      icon: (path) => <Info style={selectedStyle(path)} />,
     },
     {
       path: "/userandpermmision",
@@ -213,7 +229,8 @@ function DrawerContent(props) {
                         : (e) => {
                             e.preventDefault();
                             e.stopPropagation();
-                            setInnerMenu(!innerMenu);
+                            if (index === 2) setInnerMenu(!innerMenu);
+                            if (index === 5) setInnerMenu2(!innerMenu2);
                           }
                     }
                     style={selectedStyle(list.path)}
@@ -225,7 +242,13 @@ function DrawerContent(props) {
                     </ListItemIcon>
                     <ListItemText primary={list.title} />
                     {typeof list?.childRoutes !== "undefined" ? (
-                      innerMenu ? (
+                      index === 2 ? (
+                        innerMenu ? (
+                          <ExpandLess />
+                        ) : (
+                          <ExpandMore />
+                        )
+                      ) : innerMenu2 ? (
                         <ExpandLess />
                       ) : (
                         <ExpandMore />
@@ -233,7 +256,11 @@ function DrawerContent(props) {
                     ) : null}
                   </ListItem>
                   {typeof list?.childRoutes !== "undefined" && (
-                    <Collapse in={innerMenu} timeout="auto" unmountOnExit>
+                    <Collapse
+                      in={index === 2 ? innerMenu : innerMenu2}
+                      timeout="auto"
+                      unmountOnExit
+                    >
                       <List component="div" disablePadding>
                         {list?.childRoutes?.map((e, i) => (
                           <ListItem

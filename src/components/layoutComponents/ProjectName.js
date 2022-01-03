@@ -1,7 +1,7 @@
 import React from "react";
 import Typography from "@material-ui/core/Typography";
 
-const ProjectName = props => (
+const ProjectName = (props) => (
   <Typography
     variant="h6"
     noWrap

@@ -10,14 +10,14 @@ const templateTabs = [
     data: [],
     route: "/dashboard/pending",
     primaryField: "name",
-    primaryFieldFallback: 'phone', // Optional
+    primaryFieldFallback: "phone", // Optional
     secondaryField: "email",
     avatarField: "src",
     decorators: {
       conditionField: "status",
       options: ["pending", "approved", "unidentified"],
-      colors: ["yellow", "green", "red"]
-    }
+      colors: ["yellow", "green", "red"],
+    },
   },
   {
     label: "Approved",
@@ -30,18 +30,18 @@ const templateTabs = [
     decorators: {
       conditionField: "currentStatus",
       options: ["pending", "authorized", "unidentified"],
-      colors: ["teal", "cyan", "magenta"]
-    }
-  }
+      colors: ["teal", "cyan", "magenta"],
+    },
+  },
 ];
-      
+
 class Dashboard extends Component {
   constructor(props) {
     super(props);
     this.state = {
       tabs: templateTabs,
       user: null,
-      users: []
+      users: [],
     };
   }
 
@@ -55,11 +55,11 @@ class Dashboard extends Component {
       let tab = next.match.params["tab"];
       if (tab === "pending" && next.match.params.hasOwnProperty("id")) {
         this.setState({
-          user: this.state.tabs[0].data[next.match.params["id"]]
+          user: this.state.tabs[0].data[next.match.params["id"]],
         });
       } else if (tab === "approved" && next.match.params.hasOwnProperty("id")) {
         this.setState({
-          user: this.state.tabs[1].data[next.match.params["id"]]
+          user: this.state.tabs[1].data[next.match.params["id"]],
         });
       } else if (tab === "new") {
         this.setState({ user: null });
@@ -70,7 +70,7 @@ class Dashboard extends Component {
 
   listClickHandler = (value) => {
     console.log(value);
-  }
+  };
 
   setInitialValues(props) {
     const tabs = this.state.tabs.map((e, i) => {
@@ -85,11 +85,11 @@ class Dashboard extends Component {
     const { tabs, users, user } = this.state;
     return (
       <Layout
-        tabs={tabs}
+        // tabs={tabs}
         search={{
           data: users, // Optional, In case if you not providing this, tabs data will be placed.
           hintText: "Search Users", // Optional
-          labelField: "email"
+          labelField: "email",
         }}
         fabClickHandler={() => {
           this.props.history.push("/dashboard/new");
@@ -104,13 +104,14 @@ class Dashboard extends Component {
           ) : (
             <div
               style={{
-                height: 300,
+                height: "90vh",
+                flex: 1,
                 display: "flex",
                 justifyContent: "center",
-                alignItems: "center"
+                alignItems: "center",
               }}
             >
-              "Suppose, nothing to show is appearing"
+              Welcome to GetSnappers-Admin Panel
             </div>
           )}
         </Paper>

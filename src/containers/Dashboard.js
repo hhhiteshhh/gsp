@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import { Route } from "react-router-dom";
 import Dashboard from "../components/Dashboard";
-
+import NothingToShow from "../components/NothingToShow";
+import { withFirebase } from "../firebase";
+import withUser from "../hoc/withUser";
 class DashboardContainer extends Component {
   constructor(props) {
     super(props);
@@ -34,7 +36,10 @@ class DashboardContainer extends Component {
           ];
           return user;
         });
-        this.setState({ users }, () => console.log(this.state.users));
+        this.setState(
+          { users }
+          // () => console.log(this.state.users)
+        );
       });
   };
 
@@ -43,9 +48,17 @@ class DashboardContainer extends Component {
       <Route
         exact
         path={["/dashboard", "/dashboard/:tab/:id", "/dashboard/new"]}
-        render={(props) => <Dashboard {...this.props} {...this.state} />}
+        render={(props) =>
+          true ? (
+            this.props.user.status === "pending" ? (
+              <NothingToShow />
+            ) : (
+              <Dashboard {...props} {...this.state} />
+            )
+          ) : null
+        }
       />
     );
   }
 }
-export default DashboardContainer;
+export default withFirebase(withUser(DashboardContainer));

@@ -4,15 +4,12 @@ import withFirebase from "./withFirebase";
 const access = {
   dashboard: false,
   bookings: false,
-  clients: false,
-  requests: false,
-  stories: false,
-  categories: false,
-  destinations: false,
-  packages: false,
+  destinationsAndStories: false,
   photographers: false,
+  clients: false,
+  categoriesAndPackages: false,
   payments: false,
-  feedbackResponse: false,
+  chats: false,
   usersAndPermissions: false,
 };
 

@@ -2,9 +2,9 @@ import React from "react";
 import { withFirebase } from "../firebase";
 import withUser from "../hoc/withUser";
 import { Route } from "react-router-dom";
-import Bookings from "../components/Bookings";
+import FeedbackResponse from "../components/Chats";
 
-function BookingsContainer() {
+function ChatsContainer() {
   const [users, setUsers] = React.useState([]);
   React.useEffect(() => {
     fetchUsers();
@@ -33,16 +33,15 @@ function BookingsContainer() {
         // this.setState({ users }, () => console.log(this.state.users));
       });
   };
-  console.log(users, "hitesh");
   return (
     <>
       <Route
         exact
-        path={["/bookings", "/bookings/:tab/:id"]}
-        render={(props) => <Bookings props={props} users={users} />}
+        path={["/chats", "/chats/:tab/:id"]}
+        render={(props) => <FeedbackResponse props={props} users={users} />}
       />
     </>
   );
 }
 
-export default withFirebase(withUser(BookingsContainer));
+export default withFirebase(withUser(ChatsContainer));
