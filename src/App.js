@@ -9,7 +9,6 @@ import withUser from "./hoc/withUser";
 import withAuthentication from "./hoc/withAuthentication";
 import LoginContainer from "./containers/Login";
 import DashboardContainer from "./containers/Dashboard";
-import Modules from "./containers/Modules";
 import UserAndPermissions from "./containers/UserAndPermissions";
 import Loader from "./components/Loader";
 
