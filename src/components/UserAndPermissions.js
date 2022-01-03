@@ -92,7 +92,7 @@ class UserAndPermissions extends Component {
     tabData[1].data = pendingUsers;
     this.setState({ tabs: tabData });
 
-    console.log(data);
+
     if (data.match.params.hasOwnProperty("tab")) {
       let tab = data.match.params["tab"];
       if (tab === "pending" && data.match.params.hasOwnProperty("id")) {

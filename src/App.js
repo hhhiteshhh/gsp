@@ -9,6 +9,16 @@ import withUser from "./hoc/withUser";
 import withAuthentication from "./hoc/withAuthentication";
 import LoginContainer from "./containers/Login";
 import DashboardContainer from "./containers/Dashboard";
+import BookingsContainer from "./containers/Bookings";
+import CategoriesContainer from "./containers/Categories";
+import ClientsContainer from "./containers/Clients";
+import DestinationsContainer from "./containers/Destinations";
+import FeedbackResponseContainer from "./containers/FeedbackResponse";
+import PackagesContainer from "./containers/Packages";
+import PaymentsContainer from "./containers/Payments";
+import PhotographersContainer from "./containers/Photographers";
+import RequestsContainer from "./containers/Requests";
+import StoriesContainer from "./containers/Stories";
 import UserAndPermissions from "./containers/UserAndPermissions";
 import Loader from "./components/Loader";
 
@@ -41,16 +51,32 @@ const App = ({ user }) => {
     <Router>
       <Switch>
         <Secure path="/dashboard" component={DashboardContainer} user={user} />
-        <Secure path="/bookings" component={DashboardContainer} user={user} />
-        <Secure path="/clients" component={DashboardContainer} user={user} />
-        <Secure path="/requests" component={DashboardContainer} user={user} />
-        <Secure path="/stories" component={DashboardContainer} user={user} />
-        <Secure path="/categories" component={DashboardContainer} user={user} />
-        <Secure path="/destinations" component={DashboardContainer} user={user} />
-        <Secure path="/packages" component={DashboardContainer} user={user} />
-        <Secure path="/photographers" component={DashboardContainer} user={user} />
-        <Secure path="/payments" component={DashboardContainer} user={user} />
-        <Secure path="/feedbackResponse" component={DashboardContainer} user={user} />
+        <Secure path="/bookings" component={BookingsContainer} user={user} />
+        <Secure path="/clients" component={ClientsContainer} user={user} />
+        <Secure path="/requests" component={RequestsContainer} user={user} />
+        <Secure path="/stories" component={StoriesContainer} user={user} />
+        <Secure
+          path="/categories"
+          component={CategoriesContainer}
+          user={user}
+        />
+        <Secure
+          path="/destinations"
+          component={DestinationsContainer}
+          user={user}
+        />
+        <Secure path="/packages" component={PackagesContainer} user={user} />
+        <Secure
+          path="/photographers"
+          component={PhotographersContainer}
+          user={user}
+        />
+        <Secure path="/payments" component={PaymentsContainer} user={user} />
+        <Secure
+          path="/feedbackResponse"
+          component={FeedbackResponseContainer}
+          user={user}
+        />
         <RouteLoader path="/authReloadWait" component={Loader} user={user} />
         <Route
           path="/userandpermmision"
