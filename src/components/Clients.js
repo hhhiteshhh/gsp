@@ -65,7 +65,7 @@ class Clients extends Component {
         search={{
           data: users, // Optional, In case if you not providing this, tabs data will be placed.
           hintText: "Search Users", // Optional
-          labelField: "firstName",
+          labelField: "phoneNumber",
         }}
         fabClickHandler={() => {
           this.props.history.push("/dashboard/new");

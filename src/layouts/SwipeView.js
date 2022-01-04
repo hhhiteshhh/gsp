@@ -9,24 +9,24 @@ import MoreVert from "@material-ui/icons/MoreVert";
 import SubMenuList from "../components/layoutComponents/SubMenuList";
 
 const styles = {
-  container: isMobile => ({
+  container: (isMobile) => ({
     width: isMobile ? "100%" : 270,
-    marginTop: isMobile ? 0 : 64
+    marginTop: isMobile ? 0 : 64,
   }),
   customBar: {
     display: "flex",
     height: 56,
     width: "100%",
     justifyContent: "space-between",
-    alignItems: "center"
-  }
+    alignItems: "center",
+  },
 };
 
 function SwipeView(props) {
   const [swipeableIndex, setSwipeableIndex] = useState(0);
   const [selectedIndex, setIndex] = useState(-1);
   const [tabIndex, setTab] = useState(0);
-  const customBarBack = e => {
+  const customBarBack = (e) => {
     e.preventDefault();
     setIndex(-1);
     setSwipeableIndex(0);
@@ -68,7 +68,7 @@ function SwipeView(props) {
           color="primary"
           aria-label="add"
           size="large"
-          onClick={e => {
+          onClick={(e) => {
             e.preventDefault();
             setSwipeableIndex(1);
             setIndex(-1);
@@ -82,7 +82,7 @@ function SwipeView(props) {
   );
 }
 
-const UseCustomBar = props => {
+const UseCustomBar = (props) => {
   const value =
     props?.tabs?.[props?.tabIndex]?.data?.[props?.selectedIndex]?.[
       props?.tabs?.[props?.tabIndex]?.primaryField
@@ -93,8 +93,8 @@ const UseCustomBar = props => {
         <ArrowBack />
       </IconButton>
       <span>{value}</span>
-      <IconButton>
-        <MoreVert />
+      <IconButton style={{ display: "hidden" }}>
+        {/* <MoreVert /> */}
       </IconButton>
     </div>
   );

@@ -9,29 +9,29 @@ import Drawer from "@material-ui/core/Drawer";
 import DrawerContents from "../components/layoutComponents/DrawerContents";
 import RightIcon from "../components/layoutComponents/RightIcon";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
   root: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   menuButton: {
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(2),
   },
   title: {
-    flexGrow: 1
+    flexGrow: 1,
   },
   list: {
-    width: 250
+    width: 250,
   },
   fullList: {
-    width: "auto"
-  }
+    width: "auto",
+  },
 }));
 
 function ButtonAppBar(props) {
   const classes = useStyles();
   const [state, setState] = React.useState(false);
 
-  const toggleDrawer = open => e => {
+  const toggleDrawer = (open) => (e) => {
     if (e.type === "keydown" && (e.key === "Tab" || e.key === "Shift")) return;
     setState(open);
   };
@@ -50,7 +50,7 @@ function ButtonAppBar(props) {
             <MenuIcon />
           </IconButton>
           <Typography variant="h6" className={classes.title}>
-            Admin Starter
+            GetSnappers
           </Typography>
           <RightIcon {...props} />
         </Toolbar>
