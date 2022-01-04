@@ -10,5 +10,5 @@ const styles = {
 };
 
 export default function StaticVersionDisplay() {
-  return <span style={styles.container}>Version 1.1.2</span>;
+  return <span style={styles.container}>Version 1.1.3</span>;
 }

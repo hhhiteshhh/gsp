@@ -12,16 +12,16 @@ function ListItemElement({
   listClickHandler,
   primary,
   secondary,
-  selectedIndex
+  selectedIndex,
 }) {
   return (
     <div>
       <ListItem
         alignItems="flex-start"
         style={{
-          backgroundColor: selectedIndex === index ? "white" : ""
+          backgroundColor: selectedIndex === index ? "white" : "",
         }}
-        onClick={e => {
+        onClick={(e) => {
           e.preventDefault();
           listClickHandler(index);
         }}
@@ -32,8 +32,16 @@ function ListItemElement({
           </Avatar>
         </ListItemAvatar>
         <ListItemText
-          primary={<span style={{ color: color || "black" }}>{primary}</span>}
-          secondary={secondary}
+          primary={
+            <span
+              style={{ color: color || "black", textTransform: "capitalize" }}
+            >
+              {primary}
+            </span>
+          }
+          secondary={
+            <span style={{ textTransform: "uppercase" }}>{secondary}</span>
+          }
         />
       </ListItem>
       <Divider />

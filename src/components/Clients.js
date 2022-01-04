@@ -11,13 +11,13 @@ class Clients extends Component {
       tabs: [
         {
           label: "Clients",
-          tooltip: "click to see user detail",
+          tooltip: "click to see user details",
           data: props.users,
           route: "/clients/users",
           primaryField: "firstName",
           primaryFieldFallback: "phoneNumber",
           // Optional
-          secondaryField: "firstName",
+          secondaryField: "phoneNumber",
           secondaryFieldFallback: "email", // Optional
           avatarField: "displayPictureUrl",
         },
@@ -77,7 +77,7 @@ class Clients extends Component {
             <ClientDetails
               user={user}
               bookings={this.props.bookings}
-              props={this.props}
+              
             />
           ) : (
             <div

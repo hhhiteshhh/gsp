@@ -92,7 +92,7 @@ const UseCustomBar = (props) => {
       <IconButton onClick={props.customBarBack}>
         <ArrowBack />
       </IconButton>
-      <span>{value}</span>
+      <span style={{ textTransform: "uppercase" }}>{value}</span>
       <IconButton style={{ display: "hidden" }}>
         {/* <MoreVert /> */}
       </IconButton>

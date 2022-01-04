@@ -4,6 +4,7 @@ import Dashboard from "../components/Dashboard";
 import NothingToShow from "../components/NothingToShow";
 import { withFirebase } from "../firebase";
 import withUser from "../hoc/withUser";
+import Loader from "../components/Loader";
 class DashboardContainer extends Component {
   constructor(props) {
     super(props);
@@ -12,51 +13,20 @@ class DashboardContainer extends Component {
     };
   }
 
-  componentDidMount() {
-    this.fetchUsers();
-  }
-
-  fetchUsers = () => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => {
-        return response.json();
-      })
-      .then((json) => {
-        const users = json.map((element, index) => {
-          const user = element;
-          user.src = `https://cdn4.iconfinder.com/data/icons/user-avatar-flat-icons/512/User_Avatar-${
-            index + 10
-          }-512.png`;
-          user.logo = user.src;
-          user.status = ["pending", "approved", "unidentified"][
-            Math.floor(Math.random() * 3)
-          ];
-          user.currentStatus = ["pending", "unidentified", "authorized"][
-            Math.floor(Math.random() * 3)
-          ];
-          return user;
-        });
-        this.setState(
-          { users }
-        );
-      });
-  };
-
   render() {
-    return (
-      <Route
-        exact
-        path={["/dashboard", "/dashboard/:tab/:id", "/dashboard/new"]}
-        render={(props) =>
-          true ? (
-            this.props.user.status === "pending" ? (
-              <NothingToShow />
-            ) : (
-              <Dashboard {...props} {...this.state} />
-            )
-          ) : null
-        }
-      />
+    let moduleAccess = this.props.user.access;
+    return moduleAccess ? (
+      moduleAccess.dashboard ? (
+        <Route
+          exact
+          path={["/dashboard", "/dashboard/:tab/:id", "/dashboard/new"]}
+          render={(props) => <Dashboard {...props} {...this.state} />}
+        />
+      ) : (
+        <NothingToShow />
+      )
+    ) : (
+      <Loader />
     );
   }
 }

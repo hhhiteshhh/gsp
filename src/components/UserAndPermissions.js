@@ -80,18 +80,13 @@ class UserAndPermissions extends Component {
     else this.props.history.push("/userandpermmision");
   };
   fetchUser = (data) => {
-    let pendingUsers = data.users.filter(
-      (user) => user.status === "pending"
-    );
-    let approvedUsers = data.users.filter(
-      (user) => user.status === "approved"
-    );
+    let pendingUsers = data.users.filter((user) => user.status === "pending");
+    let approvedUsers = data.users.filter((user) => user.status === "approved");
 
     const tabData = this.state.tabs;
     tabData[0].data = approvedUsers;
     tabData[1].data = pendingUsers;
     this.setState({ tabs: tabData });
-
 
     if (data.match.params.hasOwnProperty("tab")) {
       let tab = data.match.params["tab"];
@@ -123,21 +118,26 @@ class UserAndPermissions extends Component {
   handleCloseSnackBar = () => {
     this.setState({ openSnackbarForUpdate: false });
   };
- handleStatusChange = (e, index, value) => {
+  handleStatusChange = (e, index, value) => {
     this.setState({ status: e.target.value }, () =>
       this.setState((prevState) => ({
         user: {
           ...prevState.user,
           status: this.state.status,
           access: {
-            boards: false,
-            studyMaterials: false,
+            dashboard: false,
+            bookings: false,
+            destinationsAndStories: false,
+            photographers: false,
+            clients: false,
+            categoriesAndPackages: false,
             payments: false,
+            chats: false,
             usersAndPermissions: false,
           },
         },
       }))
-    ); 
+    );
   };
 
   handleChangeForCheckBox = (name) => {

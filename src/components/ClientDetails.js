@@ -49,9 +49,6 @@ function ClientDetails({ user, bookings, props }) {
     const templist = bookings.filter((e) => e.createdBy === user.uid);
     setUserBookings(templist);
   }, [bookings, user]);
-  useEffect(() => {
-    userBookings.map((e) => {});
-  }, [userBookings]);
   return (
     <Paper
       style={{

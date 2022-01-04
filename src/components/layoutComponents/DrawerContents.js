@@ -235,7 +235,7 @@ function DrawerContent(props) {
                     }
                     style={selectedStyle(list.path)}
                   >
-                    <ListItemIcon>
+                    <ListItemIcon style={{ minWidth: 35 }}>
                       <Tooltip title={list.title} placement="right-start">
                         {list.icon(list.path)}
                       </Tooltip>
