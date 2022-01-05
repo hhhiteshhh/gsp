@@ -155,6 +155,7 @@ export default function SubMenuList(props) {
                       )
                     ]
                   }
+                  lowerCase={tab.lowerCase}
                 />
               ))}
             </List>

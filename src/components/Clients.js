@@ -67,9 +67,9 @@ class Clients extends Component {
           hintText: "Search Users", // Optional
           labelField: "phoneNumber",
         }}
-        fabClickHandler={() => {
-          this.props.history.push("/dashboard/new");
-        }}
+        // fabClickHandler={() => {
+        //   this.props.history.push("/dashboard/new");
+        // }}
         listClickHandler={this.listClickHandler}
       >
         <Paper style={{ width: "100%", height: "100%" }}>

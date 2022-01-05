@@ -194,8 +194,8 @@ function DestinationDetails({ db, destination }) {
             }}
           >
             {countryData[countryIndex]?.regions?.map((age, index) => (
-              <MenuItem key={age.shortCode} value={age.name}>
-                {age.name}
+              <MenuItem key={age} value={age}>
+                {age}
               </MenuItem>
             ))}
           </Select>

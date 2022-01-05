@@ -54,6 +54,7 @@ class UserAndPermissions extends Component {
           primaryField: "displayName",
           secondaryField: "email",
           avatarField: "imageURL",
+          lowerCase: true,
         },
         {
           label: "Pending",
@@ -63,6 +64,7 @@ class UserAndPermissions extends Component {
           primaryField: "displayName",
           secondaryField: "email",
           avatarField: "imageURL",
+          lowerCase: true,
         },
       ],
       user: null,
@@ -108,10 +110,10 @@ class UserAndPermissions extends Component {
     } else this.setState({ user: null });
   };
 
-  componentWillMount() {
+  UNSAFE_componentWillMount() {
     this.fetchUser(this.props);
   }
-  componentWillReceiveProps(next) {
+  UNSAFE_componentWillReceiveProps(next) {
     this.fetchUser(next);
   }
 

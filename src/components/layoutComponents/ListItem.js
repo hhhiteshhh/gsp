@@ -13,6 +13,7 @@ function ListItemElement({
   primary,
   secondary,
   selectedIndex,
+  lowerCase,
 }) {
   return (
     <div>
@@ -32,15 +33,24 @@ function ListItemElement({
           </Avatar>
         </ListItemAvatar>
         <ListItemText
+          disableTypography
           primary={
-            <span
+            <div
               style={{ color: color || "black", textTransform: "capitalize" }}
             >
               {primary}
-            </span>
+            </div>
           }
           secondary={
-            <span style={{ textTransform: "uppercase" }}>{secondary}</span>
+            <div
+              style={{
+                textTransform: lowerCase ? "lowercase" : "uppercase",
+              }}
+            >
+              {secondary?.length > 23
+                ? `${secondary.slice(0, 22)}...`
+                : secondary}
+            </div>
           }
         />
       </ListItem>
