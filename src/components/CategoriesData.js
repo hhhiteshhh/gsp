@@ -2,7 +2,7 @@ import React from "react";
 import Chip from "@mui/material/Chip";
 import Stack from "@mui/material/Stack";
 
-function CategoriesData({ db, destination }) {
+function CategoriesData({ db, destination, editPage }) {
   const [perfectDestinationFor, setPerfectDestinationFor] = React.useState();
 
   React.useEffect(() => {
@@ -16,7 +16,7 @@ function CategoriesData({ db, destination }) {
         });
     });
     setPerfectDestinationFor(newArray);
-  }, [destination]);
+  }, [destination, editPage]);
   return (
     <Stack direction="row" spacing={1}>
       {perfectDestinationFor?.map((item, index) => (

@@ -77,7 +77,7 @@ class Destinations extends Component {
   }
 
   listClickHandler = (value) => {
-    console.log(value);
+    // console.log(value);
   };
 
   setInitialValues(props) {
@@ -106,7 +106,11 @@ class Destinations extends Component {
       >
         <Paper style={{ width: "100%", height: "100%" }}>
           {users.length > 0 && destination ? (
-            <DestinationDetails destination={destination} />
+            <DestinationDetails
+              destination={destination}
+              categoriesData={this.props.categoriesData}
+              packageData={this.props.packageData}
+            />
           ) : (
             // <div>
             //   You Have Selected: {destination.city}, {destination.country},{" "}

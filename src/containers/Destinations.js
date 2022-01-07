@@ -6,8 +6,12 @@ import Destinations from "../components/Destinations";
 
 function DestinationsContainer(props) {
   const [destinationsList, setDestinationsList] = React.useState([]);
+  const [categoriesData, setCategoriesData] = React.useState([]);
+  const [packageData, setPackageData] = React.useState([]);
   React.useEffect(() => {
     fetchCollectionDocument("destinations", setDestinationsList);
+    fetchCollectionDocument("categories", setCategoriesData);
+    fetchCollectionDocument("packages", setPackageData);
   }, []);
   const fetchCollectionDocument = (dbName, setterFunction) => {
     let collectionRef = props.db.collection(dbName);
@@ -27,7 +31,12 @@ function DestinationsContainer(props) {
         exact
         path={["/destinations", "/destinations/:tab/:id"]}
         render={(props) => (
-          <Destinations props={props} destinationsList={destinationsList} />
+          <Destinations
+            props={props}
+            destinationsList={destinationsList}
+            categoriesData={categoriesData}
+            packageData={packageData}
+          />
         )}
       />
     </>
