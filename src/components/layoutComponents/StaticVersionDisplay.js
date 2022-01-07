@@ -5,10 +5,10 @@ const styles = {
     whiteSpace: "nowrap",
     fontSize: 12,
     color: "lightblue",
-    paddingRight: 45
-  }
+    paddingRight: 45,
+  },
 };
 
 export default function StaticVersionDisplay() {
-  return <span style={styles.container}>Version 1.1.3</span>;
+  return <span style={styles.container}>Version 1.1.4</span>;
 }
