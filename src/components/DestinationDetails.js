@@ -22,21 +22,31 @@ import FormLabel from "@mui/material/FormLabel";
 import Switch from "@mui/material/Switch";
 import Typography from "@mui/material/Typography";
 import AddIcon from "../images/addImageIcon.png";
+import Delete from "@material-ui/icons/DeleteForeverSharp";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 function DestinationDetails({
   db,
   destination,
   packageData,
   categoriesData,
   storage,
+  newDestination,
+  openSnackBarFunction,
+  handleCloseAddNew,
+  props,
 }) {
   const [selected, setSelected] = React.useState(null);
   const [editPage, setEditPage] = React.useState(false);
-  const [basicPackageData, setBasicPackageData] = React.useState(null);
+  const [basicPackageData, setBasicPackageData] = React.useState("");
   const [oldCategories, setOldCategories] = React.useState(null);
   const [newCity, setNewCity] = React.useState(null);
   const [newCountry, setNewCountry] = React.useState(null);
   const [countryIndex, setCountryIndex] = React.useState(null);
-  const [newDescription, setNewDescription] = React.useState(null);
+  const [newDescription, setNewDescription] = React.useState("");
   const [newCategories, setNewCategories] = React.useState([]);
   const [newPackage, setNewPackage] = React.useState(null);
   const [value, setValue] = React.useState("");
@@ -46,6 +56,9 @@ function DestinationDetails({
   const [newDisplayImages, setNewDisplayImages] = React.useState(null);
   const [newMemoriesImages, setNewMemoriesImages] = React.useState(null);
   const [newImage, setNewImage] = React.useState(false);
+  const [newDestinationBasicPackage, setNewDestinationBasicPackage] =
+    React.useState({ numberOfPhotos: "" });
+  const [deleteDialog, setDeleteDialog] = React.useState(false);
   useEffect(() => {
     packageData.sort((a, b) =>
       a.numberOfPhotos > b.numberOfPhotos
@@ -58,7 +71,7 @@ function DestinationDetails({
     setEditPage(false);
     setNewCountry(null);
     setNewCity(null);
-    setNewDescription(null);
+    setNewDescription("");
     setNewPackage(null);
     setNewCategories(null);
   }, [destination]);
@@ -71,8 +84,6 @@ function DestinationDetails({
           setBasicPackageData(data);
           setNewPackage(data);
         });
-      //   .get()
-      //   .then((doc) => {});
       let newArray = [];
       selected?.categories?.map((id) => {
         db.collection("categories")
@@ -80,11 +91,8 @@ function DestinationDetails({
           .onSnapshot((obj) => {
             newArray.push(obj.data());
           });
-        // .get()
-        // .then((doc) => {});
       });
 
-      // setOldCategories(newArray);
       setNewCategories(newArray);
       setOldCategories(newArray);
       setPopluar(selected?.isPopular);
@@ -99,8 +107,22 @@ function DestinationDetails({
     }
   }, [destination, selected]);
 
+  useEffect(() => {
+    setNewCountry("");
+    setNewDescription("");
+    setNewCity("");
+    setNewCategories([]);
+    setNewPackage("");
+    setNewAvatarImage("");
+    setNewDisplayImages([]);
+    setNewMemoriesImages([]);
+    setPopluar(false);
+    setRecommended(false);
+    setValue("Available");
+  }, [newDestination, destination]);
   const handlePageClose = () => {
     setSelected(null);
+    props.history.replace("/destinations");
   };
   const handlePageEdit = () => {
     setEditPage(true);
@@ -110,14 +132,12 @@ function DestinationDetails({
     setEditPage(false);
     setNewCountry(null);
     setNewCity(null);
-    setNewDescription(null);
+    setNewDescription("");
     setNewPackage(null);
     setNewCategories(oldCategories);
     setPopluar(selected?.isPopular);
     setRecommended(selected?.isRecommended);
-    // setNewAvatarImage(null);
-    // setNewDisplayImages(null);
-    // setNewMemoriesImages(null);
+    setNewPackage(basicPackageData);
   };
   var formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -126,12 +146,10 @@ function DestinationDetails({
 
   const selectCountry = (val) => {
     setNewCountry(val);
-    // this.setState({ country: val });
   };
 
   const selectCity = (val) => {
     setNewCity(val);
-    //   this.setState({ region: val });
   };
 
   const handleChangeType = (event) => {
@@ -143,7 +161,6 @@ function DestinationDetails({
   const handleChangeRecommended = (event) => {
     setRecommended(event.target.checked);
   };
-  //   console.log(packageData);
   const handleDelete = (e, i) => {
     e.preventDefault();
     let temp = [...newCategories];
@@ -185,21 +202,276 @@ function DestinationDetails({
   };
   const handleEditChanges = (e) => {
     e.preventDefault();
-    console.log(newMemoriesImages);
-    console.log(newDisplayImages);
-    console.log(newAvatarImage);
-    console.log(newCountry);
-    console.log(newCity);
-    console.log(newCategories);
-    console.log(newPackage);
-    console.log(newDescription);
-    console.log(popular);
-    console.log(recommended);
-    console.log(value);
+    if (typeof newAvatarImage !== "string") {
+      const upload = storage
+        .ref(`location/${newAvatarImage.name}`)
+        .put(newAvatarImage);
+      upload.on(
+        "state_changed",
+        (snapshot) => {
+          const progress = Math.round(
+            (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          );
+        },
+        (error) => {
+          alert(error.message);
+        },
+        () => {
+          storage
+            .ref("location")
+            .child(newAvatarImage.name)
+            .getDownloadURL()
+            .then((url) => {
+              db.collection("destinations").doc(selected?.uid).update({
+                displayPictureUrl: url,
+              });
+            });
+        }
+      );
+    }
+    let memoriesImagesURl = [];
+    newMemoriesImages.map((image) => {
+      if (typeof image !== "string") {
+        const upload = storage.ref(`location/${image.name}`).put(image);
+        upload.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+          },
+          (error) => {
+            alert(error.message);
+          },
+          () => {
+            storage
+              .ref("location")
+              .child(image.name)
+              .getDownloadURL()
+              .then((url) => {
+                memoriesImagesURl.push(url);
+                db.collection("destinations").doc(selected?.uid).update({
+                  memories: memoriesImagesURl,
+                });
+              });
+          }
+        );
+      } else {
+        memoriesImagesURl.push(image);
+        db.collection("destinations").doc(selected?.uid).update({
+          memories: memoriesImagesURl,
+        });
+      }
+    });
+    let displayImagesURl = [];
+    newDisplayImages.map((image) => {
+      if (typeof image !== "string") {
+        const upload = storage.ref(`location/${image.name}`).put(image);
+        upload.on(
+          "state_changed",
+          (snapshot) => {
+            const progress = Math.round(
+              (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+            );
+          },
+          (error) => {
+            alert(error.message);
+          },
+          () => {
+            storage
+              .ref("location")
+              .child(image.name)
+              .getDownloadURL()
+              .then((url) => {
+                displayImagesURl.push(url);
+                db.collection("destinations").doc(selected?.uid).update({
+                  displayImages: displayImagesURl,
+                });
+              });
+          }
+        );
+      } else {
+        displayImagesURl.push(image);
+        db.collection("destinations").doc(selected?.uid).update({
+          displayImages: displayImagesURl,
+        });
+      }
+    });
+    db.collection("destinations").doc(selected?.uid).update({
+      country: newCountry,
+      city: newCity,
+      basicPackage: newPackage.uid,
+      description: newDescription,
+      isPopular: popular,
+      isRecommended: recommended,
+      type: value,
+    });
+    let categoriesId = [];
+    newCategories.map((category) => categoriesId.push(category.uid));
+    db.collection("destinations").doc(selected?.uid).update({
+      categories: categoriesId,
+    });
+    openSnackBarFunction("Edited Successfully");
   };
+
+  const handleAddDestination = (e) => {
+    e.preventDefault();
+    try {
+      let categoriesId = [];
+      newCategories.map((category) => categoriesId.push(category.uid));
+      if (
+        !newDestinationBasicPackage.uid ||
+        !newCity ||
+        !newCountry ||
+        !newDescription ||
+        newDisplayImages.length === 0
+      ) {
+        openSnackBarFunction("All fields are required");
+      } else {
+        db.collection("destinations")
+          .add({
+            basicPackage: newDestinationBasicPackage.uid,
+            categories: categoriesId,
+            city: newCity,
+            country: newCountry,
+            createdAt: "",
+            createdBy: "",
+            description: newDescription,
+            displayImages: [],
+            displayPictureUrl: "",
+            isPopular: popular,
+            isRecommended: recommended,
+            memories: [],
+            type: value,
+            uid: "",
+            updatedAt: "",
+            updatedBy: "",
+          })
+          .then((docRef) => {
+            console.log(docRef.id);
+            db.collection("destinations").doc(docRef.id).update({
+              uid: docRef.id,
+            });
+            if (typeof newAvatarImage !== "string") {
+              const upload = storage
+                .ref(`location/${newAvatarImage.name}`)
+                .put(newAvatarImage);
+              upload.on(
+                "state_changed",
+                (snapshot) => {
+                  const progress = Math.round(
+                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                  );
+                },
+                (error) => {
+                  alert(error.message);
+                },
+                () => {
+                  storage
+                    .ref("location")
+                    .child(newAvatarImage.name)
+                    .getDownloadURL()
+                    .then((url) => {
+                      db.collection("destinations").doc(docRef.id).update({
+                        displayPictureUrl: url,
+                      });
+                    });
+                }
+              );
+            }
+            let memoriesImagesURl = [];
+            newMemoriesImages.map((image) => {
+              if (typeof image !== "string") {
+                const upload = storage.ref(`location/${image.name}`).put(image);
+                upload.on(
+                  "state_changed",
+                  (snapshot) => {
+                    const progress = Math.round(
+                      (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                    );
+                  },
+                  (error) => {
+                    alert(error.message);
+                  },
+                  () => {
+                    storage
+                      .ref("location")
+                      .child(image.name)
+                      .getDownloadURL()
+                      .then((url) => {
+                        memoriesImagesURl.push(url);
+                        db.collection("destinations").doc(docRef.id).update({
+                          memories: memoriesImagesURl,
+                        });
+                      });
+                  }
+                );
+              }
+            });
+            let displayImagesUrl = [];
+            newDisplayImages.map((image) => {
+              if (typeof image !== "string") {
+                const upload = storage.ref(`location/${image.name}`).put(image);
+                upload.on(
+                  "state_changed",
+                  (snapshot) => {
+                    const progress = Math.round(
+                      (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                    );
+                  },
+                  (error) => {
+                    alert(error.message);
+                  },
+                  () => {
+                    storage
+                      .ref("location")
+                      .child(image.name)
+                      .getDownloadURL()
+                      .then((url) => {
+                        displayImagesUrl.push(url);
+                        db.collection("destinations").doc(docRef.id).update({
+                          displayImages: displayImagesUrl,
+                        });
+                      });
+                  }
+                );
+              }
+            });
+          });
+        openSnackBarFunction("Added Successfully");
+        props.history.replace("/destinations");
+        handleCloseAddNew();
+      }
+    } catch (e) {
+      console.log(e.message);
+      openSnackBarFunction("Error Occured");
+    }
+  };
+
+  const handleClosePageNew = (e) => {
+    e.preventDefault();
+    setSelected(null);
+    handleCloseAddNew();
+    props.history.replace("/destinations");
+  };
+
+  const handleDeleteDestination = (e, id) => {
+    e.preventDefault();
+    db.collection("destinations").doc(id).update({ archived: true });
+    openSnackBarFunction("Deleted Successfully");
+    setSelected(null);
+    props.history.replace("/destinations");
+  };
+  const handleDialogOpen = () => {
+    setDeleteDialog(true);
+  };
+
+  const handleDialogClose = () => {
+    setDeleteDialog(false);
+  };
+
   return selected ? (
     editPage ? (
-      //   <h1>This is your edit Page</h1>
       <Paper
         style={{
           height: window.innerHeight - 70,
@@ -276,11 +548,9 @@ function DestinationDetails({
             value={newCity}
             input={<Input />}
             onChange={(e) => {
-              //   console.log(e);
               selectCity(e.target.value);
             }}
             renderValue={(group) => {
-              //   console.log(group);
               return <p style={{ textTransform: "capitalize" }}>{group}</p>;
             }}
           >
@@ -297,7 +567,7 @@ function DestinationDetails({
           label="Description"
           variant="outlined"
           style={{ marginTop: 30 }}
-          defaultValue={selected.description || newDescription}
+          defaultValue={newDescription}
           onChange={(e) => setNewDescription(e.target.value)}
         ></TextField>
         <Typography
@@ -374,7 +644,6 @@ function DestinationDetails({
                 }}
               >
                 <img
-                  // key={index}
                   src={AddIcon}
                   alt=""
                   loading="lazy"
@@ -496,7 +765,6 @@ function DestinationDetails({
               }}
             >
               <img
-                // key={index}
                 src={AddIcon}
                 alt=""
                 loading="lazy"
@@ -601,11 +869,9 @@ function DestinationDetails({
             value={newCategories}
             input={<Input />}
             onChange={(e) => {
-              //   console.log(e);
               setNewCategories(e.target.value);
             }}
             renderValue={(group) => {
-              console.log({ group });
               return (
                 <div
                   style={{
@@ -620,7 +886,6 @@ function DestinationDetails({
                       style={{ margin: 2 }}
                       onDelete={(e) => {
                         handleDelete(e, i);
-                        //   this.handleDelete("ageGroup", e, i);
                       }}
                       onMouseDown={(event) => {
                         event.stopPropagation();
@@ -651,7 +916,6 @@ function DestinationDetails({
             input={<Input />}
             onChange={(e) => setNewPackage(e.target.value)}
             renderValue={(group) => {
-              //   console.log(group);
               return <p style={{ textTransform: "capitalize" }}>{group}</p>;
             }}
           >
@@ -660,7 +924,6 @@ function DestinationDetails({
                 key={index}
                 value={customPackage}
                 onClick={() => {
-                  //   setCountryIndex(index);
                   setNewPackage(customPackage.uid);
                 }}
               >
@@ -731,10 +994,6 @@ function DestinationDetails({
           }}
         >
           <div>
-            {/* <Button
-                      color='primary'
-                      onClick={e=>this.addNewMetric(e)}
-                  >Save as new Metric</Button> */}
             <Button color="primary" onClick={(e) => handleClosePageEdit()}>
               Cancel
             </Button>
@@ -743,7 +1002,6 @@ function DestinationDetails({
             <Button
               variant="contained"
               color="primary"
-              //   onClick={this.updateMetricVal}
               onClick={(e) => handleEditChanges(e)}
             >
               Update
@@ -804,6 +1062,18 @@ function DestinationDetails({
             }}
           >
             <Edit onClick={handlePageEdit} style={{ cursor: "pointer" }} />
+            <Button
+              variant="contained"
+              onClick={(e) => handleDialogOpen()}
+              startIcon={<Delete />}
+              style={{
+                marginLeft: 10,
+                marginRight: 10,
+                backgroundColor: "#FF0000",
+              }}
+            >
+              Delete
+            </Button>
           </div>
         </div>
         <div style={{ display: "flex", margin: 10 }}>
@@ -886,7 +1156,7 @@ function DestinationDetails({
             justifyContent: "flex-start",
           }}
         >
-          {selected?.displayImages.map((image, index) => (
+          {selected?.displayImages?.map((image, index) => (
             <img
               key={index}
               src={image}
@@ -1016,8 +1286,561 @@ function DestinationDetails({
             {selected.isRecommended ? "Yes" : "No"}
           </span>
         </div>
+        <Dialog open={deleteDialog} onClose={handleDialogClose}>
+          <DialogTitle>{"Are you sure to delete?"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Selecting yes will delete this destination. It can't be retrieved.
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="primary">
+              No
+            </Button>
+            <Button
+              onClick={(e) => handleDeleteDestination(e, selected?.uid)}
+              color="primary"
+              autoFocus
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
     )
+  ) : newDestination ? (
+    <Paper
+      style={{
+        height: window.innerHeight - 70,
+        width: "fill-available",
+        overflowY: "scroll",
+        display: "flex",
+        flexDirection: "column",
+        paddingLeft: 10,
+        paddingRight: 10,
+      }}
+    >
+      <div style={{ display: "flex" }}>
+        <div
+          style={{
+            flex: 1,
+            display: "flex",
+            height: "100%",
+            marginLeft: "-5px",
+            alignItems: "center",
+            cursor: "pointer",
+          }}
+        >
+          <CloseOutlined onClick={handleClosePageNew} />
+        </div>
+        <div
+          style={{
+            flex: 9,
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <h2>New Destination</h2>
+        </div>
+      </div>
+      <FormControl
+        style={{
+          marginTop: 10,
+          marginBottom: 1,
+          minWidth: 150,
+        }}
+      >
+        <InputLabel>Country</InputLabel>
+        <Select
+          value={newCountry}
+          input={<Input />}
+          onChange={(e) => selectCountry(e.target.value)}
+          renderValue={(group) => {
+            return <p style={{ textTransform: "capitalize" }}>{group}</p>;
+          }}
+        >
+          {countryData.map((country, index) => (
+            <MenuItem
+              key={index}
+              value={country.countryName}
+              onClick={() => {
+                setCountryIndex(index);
+              }}
+            >
+              {country.countryName}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl
+        style={{
+          marginTop: 10,
+          marginBottom: 1,
+          minWidth: 150,
+        }}
+      >
+        <InputLabel>City</InputLabel>
+        <Select
+          value={newCity}
+          input={<Input />}
+          onChange={(e) => {
+            selectCity(e.target.value);
+          }}
+          renderValue={(group) => {
+            return <p style={{ textTransform: "capitalize" }}>{group}</p>;
+          }}
+        >
+          {countryData[countryIndex]?.regions?.map((city, index) => (
+            <MenuItem key={`${index}${city}`} value={city}>
+              {city}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <TextField
+        multiline
+        rows={4}
+        label="Description"
+        variant="outlined"
+        style={{ marginTop: 30 }}
+        defaultValue={newDescription}
+        onChange={(e) => setNewDescription(e.target.value)}
+      ></TextField>
+      <Typography
+        variant="body2"
+        color={"textSecondary"}
+        style={{ marginTop: 10, marginBottom: 10 }}
+      >
+        Avatar Image
+      </Typography>
+
+      <div
+        style={{
+          position: "relative",
+          flexDirection: "column",
+          display: "flex",
+          alignItems: "flex-start",
+          justifyContent: "flex-start",
+        }}
+      >
+        {newAvatarImage && (
+          <img
+            src={URL.createObjectURL(newAvatarImage)}
+            alt={"avatar Image"}
+            loading="lazy"
+            style={{
+              width: 120,
+              height: 120,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: "transparent",
+            }}
+          />
+        )}
+
+        <input
+          type="file"
+          alt="Choose File"
+          accept="image/*"
+          name="file"
+          id="image"
+          style={{ margin: 10 }}
+          onChange={handleChangeAvatarImage}
+        />
+      </div>
+
+      <Typography
+        variant="body2"
+        color={"textSecondary"}
+        style={{ marginTop: 10, marginBottom: 10 }}
+      >
+        Display Images
+      </Typography>
+      <div>
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "row",
+            flexWrap: "wrap",
+            alignItems: "center",
+            justifyContent: "flex-start",
+          }}
+        >
+          <label htmlFor="file">
+            <div
+              style={{
+                backgroundColor: "#dadada",
+                width: 125,
+                height: 125,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: "transparent",
+                margin: 5,
+                cursor: "pointer",
+              }}
+            >
+              <img
+                src={AddIcon}
+                alt=""
+                loading="lazy"
+                style={{
+                  width: 120,
+                  height: 120,
+                  borderRadius: 10,
+                  borderWidth: 1,
+                  borderColor: "transparent",
+                  margin: 5,
+                }}
+              />
+            </div>
+          </label>
+          {newDisplayImages?.map((image, index) => {
+            return (
+              <div style={{ position: "relative" }} key={index}>
+                {typeof image === "string" ? (
+                  <>
+                    <img
+                      key={index}
+                      src={image}
+                      alt=""
+                      loading="lazy"
+                      style={{
+                        width: 120,
+                        height: 120,
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        borderColor: "transparent",
+                        margin: 5,
+                      }}
+                    />
+                    <CloseOutlined
+                      onClick={(e) => {
+                        handleDeleteDisplayImages(e, index);
+                      }}
+                      style={{
+                        color: "#ffffff",
+                        position: "absolute",
+                        left: 95,
+                        top: 10,
+                        cursor: "pointer",
+                      }}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <img
+                      key={index}
+                      src={URL.createObjectURL(image)}
+                      alt=""
+                      loading="lazy"
+                      style={{
+                        width: 120,
+                        height: 120,
+                        borderRadius: 10,
+                        borderWidth: 1,
+                        borderColor: "transparent",
+                        margin: 5,
+                      }}
+                    />
+                    <CloseOutlined
+                      onClick={(e) => {
+                        handleDeleteDisplayImages(e, index);
+                      }}
+                      style={{
+                        color: "#ffffff",
+                        position: "absolute",
+                        left: 95,
+                        top: 10,
+                        cursor: "pointer",
+                      }}
+                    />
+                  </>
+                )}
+              </div>
+            );
+          })}
+        </div>
+        <input
+          multiple
+          type="file"
+          accept="image/*"
+          name="image"
+          id="file"
+          style={{ margin: 10, display: "none" }}
+          onChange={(e, i) => handleChangeDisplayImages(e)}
+        />
+      </div>
+
+      <Typography
+        variant="body2"
+        color={"textSecondary"}
+        style={{ marginTop: 10, marginBottom: 10 }}
+      >
+        Memories
+      </Typography>
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "flex-start",
+        }}
+      >
+        <label htmlFor="files">
+          <div
+            style={{
+              backgroundColor: "#dadada",
+              width: 125,
+              height: 125,
+              borderRadius: 10,
+              borderWidth: 1,
+              borderColor: "transparent",
+              margin: 5,
+              cursor: "pointer",
+            }}
+          >
+            <img
+              src={AddIcon}
+              alt=""
+              loading="lazy"
+              style={{
+                width: 120,
+                height: 120,
+                borderRadius: 10,
+                borderWidth: 1,
+                borderColor: "transparent",
+                margin: 5,
+              }}
+            />
+          </div>
+        </label>
+
+        {newMemoriesImages?.map((memory, index) => {
+          return (
+            <div style={{ position: "relative" }} key={index}>
+              {typeof memory === "string" ? (
+                <>
+                  <img
+                    key={memory}
+                    src={memory}
+                    alt=""
+                    loading="lazy"
+                    style={{
+                      width: 120,
+                      height: 120,
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: "transparent",
+                      margin: 5,
+                    }}
+                  />
+                  <CloseOutlined
+                    onClick={(e) => {
+                      handleDeleteMemoriesImages(e, index);
+                    }}
+                    style={{
+                      color: "#ffffff",
+                      position: "absolute",
+                      left: 95,
+                      top: 10,
+                      cursor: "pointer",
+                    }}
+                  />
+                </>
+              ) : (
+                <>
+                  <img
+                    key={index}
+                    src={URL.createObjectURL(memory)}
+                    alt=""
+                    loading="lazy"
+                    style={{
+                      width: 120,
+                      height: 120,
+                      borderRadius: 10,
+                      borderWidth: 1,
+                      borderColor: "transparent",
+                      margin: 5,
+                    }}
+                  />
+                  <CloseOutlined
+                    onClick={(e) => {
+                      handleDeleteMemoriesImages(e, index);
+                    }}
+                    style={{
+                      color: "#ffffff",
+                      position: "absolute",
+                      left: 95,
+                      top: 10,
+                      cursor: "pointer",
+                    }}
+                  />
+                </>
+              )}
+            </div>
+          );
+        })}
+        <input
+          multiple
+          type="file"
+          accept="image/*"
+          name="image"
+          id="files"
+          style={{ margin: 10, display: "none" }}
+          onChange={(e, i) => handleChangeMemoriesImages(e)}
+        />
+      </div>
+
+      <FormControl
+        style={{
+          marginTop: 10,
+          marginBottom: 1,
+          minWidth: 150,
+        }}
+      >
+        <InputLabel>Popular Destination For</InputLabel>
+        <Select
+          multiple
+          value={newCategories}
+          input={<Input />}
+          onChange={(e) => {
+            setNewCategories(e.target.value);
+          }}
+          renderValue={(group) => {
+            return (
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                }}
+              >
+                {group?.map((category, i) => (
+                  <Chip
+                    key={category.categoryName}
+                    label={category.categoryName}
+                    style={{ margin: 2 }}
+                    onDelete={(e) => {
+                      handleDelete(e, i);
+                    }}
+                    onMouseDown={(event) => {
+                      event.stopPropagation();
+                    }}
+                  />
+                ))}
+              </div>
+            );
+          }}
+        >
+          {categoriesData?.map((category) => (
+            <MenuItem key={category.uid} value={category}>
+              {category.categoryName}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl
+        style={{
+          marginTop: 20,
+          marginBottom: 1,
+          minWidth: 150,
+        }}
+      >
+        <InputLabel>Basic Package</InputLabel>
+        <Select
+          value={`${newDestinationBasicPackage?.numberOfPhotos} photos`}
+          input={<Input />}
+          onChange={(e) => setNewDestinationBasicPackage(e.target.value)}
+          renderValue={(group) => {
+            return <p style={{ textTransform: "capitalize" }}>{group}</p>;
+          }}
+        >
+          {packageData?.map((customPackage, index) => (
+            <MenuItem
+              key={index}
+              value={customPackage}
+              onClick={() => {
+                setNewDestinationBasicPackage(customPackage.uid);
+              }}
+            >
+              {customPackage.numberOfPhotos} photos Price:
+              {formatter.format(customPackage.price)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <FormControl
+        component="fieldset"
+        variant="standard"
+        style={{ marginRight: "auto" }}
+      >
+        <FormControlLabel
+          control={
+            <Switch
+              color="primary"
+              checked={popular}
+              onChange={handleChangePopular}
+            />
+          }
+          label="Popular"
+          labelPlacement="start"
+          style={{ marginRight: "auto", marginLeft: 0 }}
+        />
+        <FormControlLabel
+          control={
+            <Switch
+              color="primary"
+              checked={recommended}
+              onChange={handleChangeRecommended}
+            />
+          }
+          label="Recommended"
+          labelPlacement="start"
+          style={{ marginRight: "auto", marginLeft: 0 }}
+        />
+      </FormControl>
+      <FormControl component="fieldset">
+        <FormLabel component="legend">Type</FormLabel>
+        <RadioGroup
+          aria-label="type"
+          defaultValue="Available"
+          value={value}
+          onChange={handleChangeType}
+          name="controlled-radio-buttons-group"
+        >
+          <FormControlLabel
+            value="Available"
+            control={<Radio />}
+            label="Available"
+          />
+          <FormControlLabel
+            value="NotAvailable"
+            control={<Radio />}
+            label="Not Available"
+          />
+        </RadioGroup>
+      </FormControl>
+      <div
+        style={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "flex-end",
+          marginTop: 10,
+          marginBottom: 10,
+        }}
+      >
+        <div>
+          <Button
+            variant="contained"
+            color="primary"
+            onClick={(e) => handleAddDestination(e)}
+          >
+            Add
+          </Button>
+        </div>
+      </div>
+    </Paper>
   ) : (
     <h1>nothing is Selected</h1>
   );

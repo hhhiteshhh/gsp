@@ -3,38 +3,8 @@ import { withRouter } from "react-router-dom";
 import Layout from "../layouts/Layout";
 import Paper from "@material-ui/core/Paper";
 import DestinationDetails from "./DestinationDetails";
-
-// const templateTabs = [
-//   {
-//     label: "All Destinations",
-//     tooltip: "Click to approve pending users",
-//     data: [],
-//     route: "/destinations/pending",
-//     primaryField: "name",
-//     primaryFieldFallback: "phone", // Optional
-//     secondaryField: "email",
-//     avatarField: "src",
-//     decorators: {
-//       conditionField: "status",
-//       options: ["pending", "approved", "unidentified"],
-//       colors: ["yellow", "green", "red"],
-//     },
-//   },
-//   {
-//     label: "Approved",
-//     tooltip: "Click to approve approved users",
-//     data: [],
-//     route: "/destinations/approved",
-//     primaryField: "name",
-//     secondaryField: "email",
-//     avatarField: "logo",
-//     decorators: {
-//       conditionField: "currentStatus",
-//       options: ["pending", "authorized", "unidentified"],
-//       colors: ["teal", "cyan", "magenta"],
-//     },
-//   },
-// ];
+import SnackbarCustom from "./SnackBarCustom";
+import SnackBar_networkIssue from "./SnackBar_networkIssue";
 
 class Destinations extends Component {
   constructor(props) {
@@ -55,7 +25,11 @@ class Destinations extends Component {
         },
       ],
       destination: null,
-      users: [],
+      destinations: [],
+      newDestination: false,
+      callSnackBar: false,
+      msgSnack: "",
+      isDisconnected: false,
     };
   }
 
@@ -86,36 +60,61 @@ class Destinations extends Component {
       tab.data = props.destinationsList;
       return tab;
     });
-    this.setState({ users: props.destinationsList, tabs });
+    this.setState({ destinations: props.destinationsList, tabs });
   }
 
+  openSnackBarFunction = (msg) => {
+    this.setState({
+      callSnackBar: true,
+      msgSnack: msg,
+    });
+  };
+  handleCloseSnack = () => {
+    this.setState({ callSnackBar: false });
+  };
+  handleCloseAddNew = () => {
+    this.setState({ newDestination: false });
+  };
+
   render() {
-    const { tabs, users, destination } = this.state;
+    const { tabs, destinations, destination, newDestination } = this.state;
+    // console.log(this.props);
     return (
       <Layout
         tabs={tabs}
         search={{
-          data: users, // Optional, In case if you not providing this, tabs data will be placed.
-          hintText: "Search Users", // Optional
+          data: destinations, // Optional, In case if you not providing this, tabs data will be placed.
+          hintText: "Search Destination", // Optional
           labelField: "city",
         }}
-        // fabClickHandler={() => {
-        //   this.props.history.push("/dashboard/new");
-        // }}
+        fabClickHandler={() => {
+          this.props.history.push("/destinations/new");
+          this.setState({
+            newDestination: true,
+          });
+        }}
         listClickHandler={this.listClickHandler}
       >
         <Paper style={{ width: "100%", height: "100%" }}>
-          {users.length > 0 && destination ? (
+          {destinations.length > 0 && destination ? (
             <DestinationDetails
               destination={destination}
               categoriesData={this.props.categoriesData}
               packageData={this.props.packageData}
+              openSnackBarFunction={this.openSnackBarFunction}
+              props={this.props}
+              newDestination={newDestination}
+            />
+          ) : newDestination ? (
+            <DestinationDetails
+              categoriesData={this.props.categoriesData}
+              packageData={this.props.packageData}
+              newDestination={newDestination}
+              openSnackBarFunction={this.openSnackBarFunction}
+              props={this.props}
+              handleCloseAddNew={this.handleCloseAddNew}
             />
           ) : (
-            // <div>
-            //   You Have Selected: {destination.city}, {destination.country},{" "}
-            //   {destination.description}
-            // </div>
             <div
               style={{
                 height: 300,
@@ -128,6 +127,14 @@ class Destinations extends Component {
             </div>
           )}
         </Paper>
+
+        <SnackbarCustom
+          msgSnack={this.state.msgSnack}
+          handleCloseSnack={this.handleCloseSnack}
+          openSnackBar={this.state.callSnackBar}
+        />
+
+        <SnackBar_networkIssue isDisconnected={this.state.isDisconnected} />
       </Layout>
     );
   }

@@ -9,27 +9,42 @@ function DestinationsContainer(props) {
   const [categoriesData, setCategoriesData] = React.useState([]);
   const [packageData, setPackageData] = React.useState([]);
   React.useEffect(() => {
-    fetchCollectionDocument("destinations", setDestinationsList);
-    fetchCollectionDocument("categories", setCategoriesData);
-    fetchCollectionDocument("packages", setPackageData);
+    fetchCollectionDocument("destinations", setDestinationsList, true);
+    fetchCollectionDocument("categories", setCategoriesData, false);
+    fetchCollectionDocument("packages", setPackageData, false);
   }, []);
-  const fetchCollectionDocument = (dbName, setterFunction) => {
-    let collectionRef = props.db.collection(dbName);
-    collectionRef.onSnapshot((obj) => {
-      const tempList = [];
-      obj.forEach((doc) => {
-        const data = doc.data();
-        data.id = doc.id;
-        tempList.push(data);
+  const fetchCollectionDocument = (dbName, setterFunction, checkDeleted) => {
+    if (!checkDeleted) {
+      let collectionRef = props.db.collection(dbName);
+      collectionRef.onSnapshot((obj) => {
+        const tempList = [];
+        obj.forEach((doc) => {
+          const data = doc.data();
+          data.id = doc.id;
+          tempList.push(data);
+        });
+        setterFunction(tempList);
       });
-      setterFunction(tempList);
-    });
+    } else {
+      let collectionRef = props.db
+        .collection(dbName)
+        .where("archived", "==", false);
+      collectionRef.onSnapshot((obj) => {
+        const tempList = [];
+        obj.forEach((doc) => {
+          const data = doc.data();
+          data.id = doc.id;
+          tempList.push(data);
+        });
+        setterFunction(tempList);
+      });
+    }
   };
   return (
     <>
       <Route
         exact
-        path={["/destinations", "/destinations/:tab/:id"]}
+        path={["/destinations", "/destinations/:tab/:id", "/destinations/new"]}
         render={(props) => (
           <Destinations
             props={props}
