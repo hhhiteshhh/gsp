@@ -1061,7 +1061,15 @@ function DestinationDetails({
               alignItems: "center",
             }}
           >
-            <Edit onClick={handlePageEdit} style={{ cursor: "pointer" }} />
+            {/* <Edit onClick={handlePageEdit} style={{ cursor: "pointer" }} /> */}
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Edit />}
+              onClick={(e) => handlePageEdit(e)}
+            >
+              Edit
+            </Button>
             <Button
               variant="contained"
               onClick={(e) => handleDialogOpen()}
