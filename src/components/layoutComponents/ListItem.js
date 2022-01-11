@@ -14,11 +14,13 @@ function ListItemElement({
   secondary,
   selectedIndex,
   lowerCase,
+  popular,
+  recommended,
 }) {
   return (
     <div>
       <ListItem
-        alignItems="flex-start"
+        alignItems="center"
         style={{
           backgroundColor: selectedIndex === index ? "white" : "",
         }}
@@ -50,10 +52,47 @@ function ListItemElement({
               {secondary?.length > 23
                 ? `${secondary.slice(0, 22)}...`
                 : secondary}
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "row",
+                  alignItems: "center",
+                  marginTop: "5px",
+                }}
+              >
+                {popular && (
+                  <p
+                    style={{
+                      padding: 5,
+                      margin: 0,
+                      textTransform: "capitalize",
+                      backgroundColor: "#0defef",
+                      borderRadius: 10,
+                      marginRight: 5,
+                    }}
+                  >
+                    popular
+                  </p>
+                )}
+                {recommended && (
+                  <p
+                    style={{
+                      padding: 5,
+                      margin: 0,
+                      textTransform: "capitalize",
+                      backgroundColor: "#0defef",
+                      borderRadius: 10,
+                    }}
+                  >
+                    recommended
+                  </p>
+                )}
+              </div>
             </div>
           }
         />
       </ListItem>
+
       <Divider />
     </div>
   );

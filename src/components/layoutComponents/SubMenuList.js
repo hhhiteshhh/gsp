@@ -156,6 +156,8 @@ export default function SubMenuList(props) {
                     ]
                   }
                   lowerCase={tab.lowerCase}
+                  popular={menu[tab.popular]}
+                  recommended={menu[tab.recommended]}
                 />
               ))}
             </List>

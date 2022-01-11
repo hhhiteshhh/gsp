@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { withRouter } from "react-router-dom";
 import Layout from "../layouts/Layout";
-import Paper from "@material-ui/core/Paper";
+import { Paper, Avatar } from "@material-ui/core";
 import DestinationDetails from "./DestinationDetails";
 import SnackbarCustom from "./SnackBarCustom";
 import SnackBar_networkIssue from "./SnackBar_networkIssue";
@@ -22,6 +22,8 @@ class Destinations extends Component {
           secondaryField: "country",
           secondaryFieldFallback: "", // Optional
           avatarField: "displayPictureUrl",
+          popular: "isPopular",
+          recommended: "isRecommended",
         },
       ],
       destination: null,
@@ -117,13 +119,24 @@ class Destinations extends Component {
           ) : (
             <div
               style={{
-                height: 300,
+                height: "100%",
                 display: "flex",
                 justifyContent: "center",
                 alignItems: "center",
+                flexDirection: "column",
+                justifyContent: "center",
               }}
             >
-              "Suppose, nothing to show is appearing"
+              <Avatar
+                style={{
+                  backgroundColor: "white",
+                  height: "200px",
+                  width: "200px",
+                  borderRadius: "0px",
+                }}
+                src="/useraccess.jpeg"
+              />
+              No Destination Selected
             </div>
           )}
         </Paper>
