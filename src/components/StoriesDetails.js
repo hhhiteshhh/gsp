@@ -25,6 +25,7 @@ function StoriesDetails({
   openSnackBarFunction,
   db,
   storage,
+  user,
 }) {
   const [selected, setSelected] = useState(null);
   const [editPage, setEditPage] = useState(false);
@@ -105,6 +106,8 @@ function StoriesDetails({
         status: status ? status : "saved",
         title: title,
         timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: user?.email,
       });
     if (typeof thumbnail !== "string") {
       const upload = storage.ref(`stories/${thumbnail.name}`).put(thumbnail);
@@ -175,12 +178,19 @@ function StoriesDetails({
   };
   const handleAddStory = (e) => {
     e.preventDefault();
-    if (title || thumbnail || stories.length > 0) {
+    console.log({ status });
+    if (!title || !thumbnail || !stories.length > 0 || status === "") {
+      openSnackBarFunction("All fields mandatory");
+    } else {
       db.collection("stories")
         .add({
           status: status ? status : "saved",
           title: title,
           timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: user?.email,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedBy: user?.email,
         })
         .then((docRef) => {
           db.collection("stories").doc(docRef.id).update({
@@ -245,9 +255,85 @@ function StoriesDetails({
         });
       openSnackBarFunction("Added Successfully");
       handleClosePageNew(e);
-    } else {
-      openSnackBarFunction("All fields mandatory");
     }
+  };
+  const handleSaveStory = (e) => {
+    e.preventDefault();
+    db.collection("stories")
+      .add({
+        status: "saved",
+        title: title ? title : "",
+        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+        createdBy: user?.email,
+        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        updatedBy: user?.email,
+        stories: [],
+        thumbnail: "",
+      })
+      .then((docRef) => {
+        db.collection("stories").doc(docRef.id).update({
+          uid: docRef.id,
+        });
+        if (typeof thumbnail !== "string") {
+          const upload = storage
+            .ref(`stories/${thumbnail.name}`)
+            .put(thumbnail);
+          upload.on(
+            "state_changed",
+            (snapshot) => {
+              const progress = Math.round(
+                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+              );
+            },
+            (error) => {
+              alert(error.message);
+            },
+            () => {
+              storage
+                .ref("stories")
+                .child(thumbnail.name)
+                .getDownloadURL()
+                .then((url) => {
+                  db.collection("stories").doc(docRef.id).update({
+                    thumbnail: url,
+                  });
+                });
+            }
+          );
+        }
+        let storiesUrl = [];
+        stories.map((image) => {
+          if (typeof image !== "string") {
+            const upload = storage.ref(`stories/${image.name}`).put(image);
+            upload.on(
+              "state_changed",
+              (snapshot) => {
+                const progress = Math.round(
+                  (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                );
+              },
+              (error) => {
+                alert(error.message);
+              },
+              () => {
+                storage
+                  .ref("stories")
+                  .child(image.name)
+                  .getDownloadURL()
+                  .then((url) => {
+                    storiesUrl.push({ type: "image", url: url });
+                    db.collection("stories").doc(docRef.id).update({
+                      stories: storiesUrl,
+                    });
+                  });
+              }
+            );
+          }
+        });
+      });
+    openSnackBarFunction("Added Successfully");
+    handleClosePageNew(e);
   };
   return selected ? (
     editPage ? (
@@ -646,7 +732,7 @@ function StoriesDetails({
               key={index}
               src={image.url}
               loading="lazy"
-              alt={selected?.city}
+              alt={index + 1}
               style={{
                 height: 120,
                 width: 120,
@@ -894,7 +980,19 @@ function StoriesDetails({
           marginBottom: 10,
         }}
       >
-        <div>
+        <div style={{ marginRight: 10 }}>
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={(e) => {
+              handleSaveStory(e);
+            }}
+          >
+            Save
+          </Button>
+        </div>
+
+        <div style={{ marginRight: 10 }}>
           <Button
             variant="contained"
             color="primary"

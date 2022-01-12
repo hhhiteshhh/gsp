@@ -28,6 +28,8 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import firebase from "firebase";
+
 function DestinationDetails({
   db,
   destination,
@@ -37,6 +39,7 @@ function DestinationDetails({
   newDestination,
   openSnackBarFunction,
   handleCloseAddNew,
+  user,
   props,
 }) {
   const [selected, setSelected] = React.useState(null);
@@ -305,6 +308,8 @@ function DestinationDetails({
       isPopular: popular,
       isRecommended: recommended,
       type: value,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: user?.email,
     });
     let categoriesId = [];
     newCategories.map((category) => categoriesId.push(category.uid));
@@ -330,12 +335,11 @@ function DestinationDetails({
       } else {
         db.collection("destinations")
           .add({
+            archived: false,
             basicPackage: newDestinationBasicPackage.uid,
             categories: categoriesId,
             city: newCity,
             country: newCountry,
-            createdAt: "",
-            createdBy: "",
             description: newDescription,
             displayImages: [],
             displayPictureUrl: "",
@@ -344,8 +348,10 @@ function DestinationDetails({
             memories: [],
             type: value,
             uid: "",
-            updatedAt: "",
-            updatedBy: "",
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedBy: user?.email,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            createdBy: user?.email,
           })
           .then((docRef) => {
             console.log(docRef.id);
@@ -457,7 +463,11 @@ function DestinationDetails({
 
   const handleDeleteDestination = (e, id) => {
     e.preventDefault();
-    db.collection("destinations").doc(id).update({ archived: true });
+    db.collection("destinations").doc(id).update({
+      archived: true,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+      updatedBy: user?.email,
+    });
     openSnackBarFunction("Deleted Successfully");
     setSelected(null);
     props.history.replace("/destinations");
