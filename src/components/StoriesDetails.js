@@ -6,15 +6,17 @@ import Edit from "@material-ui/icons/Edit";
 import CloseOutlined from "@material-ui/icons/CloseOutlined";
 import Button from "@material-ui/core/Button";
 import TextField from "@material-ui/core/TextField";
-import FormControl from "@material-ui/core/FormControl";
-import Radio from "@mui/material/Radio";
-import RadioGroup from "@mui/material/RadioGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
-import FormLabel from "@mui/material/FormLabel";
 import { Avatar } from "@material-ui/core";
 import Typography from "@mui/material/Typography";
 import AddIcon from "../images/addImageIcon.png";
 import firebase from "firebase";
+import Switch from "@mui/material/Switch";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 
 function StoriesDetails({
   story,
@@ -33,6 +35,8 @@ function StoriesDetails({
   const [status, setStatus] = useState("");
   const [thumbnail, setThumbnail] = useState("");
   const [stories, setStories] = useState([]);
+  const [publishedDialog, setPublishedDialog] = useState(false);
+
   useEffect(() => {
     setSelected(null);
     setEditPage(false);
@@ -74,8 +78,25 @@ function StoriesDetails({
     handleCloseAddNew();
     props.history.replace("/stories");
   };
-  const handleChangeStatus = (event) => {
-    setStatus(event.target.value);
+  const handleChangeStatus = (event, uid) => {
+    event.preventDefault();
+    handleDialogClose();
+    if (status === "published") {
+      setStatus("unpublished");
+      db.collection("stories").doc(uid).update({
+        status: "unpublished",
+      });
+    } else {
+      setStatus("published");
+      db.collection("stories").doc(uid).update({
+        status: "published",
+      });
+    }
+    setSelected(null);
+    props.history.replace("/stories");
+  };
+  const handleDialogClose = () => {
+    setPublishedDialog(false);
   };
   const handleChangeThumbnailImage = (e) => {
     const image = e.target.files[0];
@@ -135,10 +156,6 @@ function StoriesDetails({
       );
     }
     let storiesUrl = [];
-    // console.log(stories);
-    // stories.map((image) => {
-    //   console.log(typeof image);
-    // });
     stories.map((image) => {
       if (!image.url) {
         const upload = storage.ref(`stories/${image.name}`).put(image);
@@ -335,6 +352,10 @@ function StoriesDetails({
     openSnackBarFunction("Added Successfully");
     handleClosePageNew(e);
   };
+  const handlePublishedDialog = (e) => {
+    e.preventDefault();
+    setPublishedDialog(true);
+  };
   return selected ? (
     editPage ? (
       <Paper
@@ -379,27 +400,6 @@ function StoriesDetails({
           defaultValue={title}
           onChange={(e) => setTitle(e.target.value)}
         ></TextField>
-        <FormControl component="fieldset">
-          <FormLabel component="legend">Status</FormLabel>
-          <RadioGroup
-            aria-label="type"
-            defaultValue="published"
-            value={status}
-            onChange={handleChangeStatus}
-            name="controlled-radio-buttons-group"
-          >
-            <FormControlLabel
-              value="published"
-              control={<Radio />}
-              label="Published"
-            />
-            <FormControlLabel
-              value="unpublished"
-              control={<Radio />}
-              label="Unpublished"
-            />
-          </RadioGroup>
-        </FormControl>
         <Typography
           variant="body2"
           color={"textSecondary"}
@@ -407,7 +407,6 @@ function StoriesDetails({
         >
           Avatar Image
         </Typography>
-        {/* {newAvatarImage && ( */}
         <div
           style={{
             position: "relative",
@@ -633,29 +632,31 @@ function StoriesDetails({
               display: "flex",
               height: "100%",
               alignItems: "center",
+              justifyContent: "flex-end",
             }}
           >
-            {/* <Edit onClick={handlePageEdit} style={{ cursor: "pointer" }} /> */}
+            <FormControlLabel
+              value="start"
+              control={
+                <Switch
+                  color="primary"
+                  checked={status === "published" ? true : false}
+                  onChange={handlePublishedDialog}
+                />
+              }
+              label="Published"
+              labelPlacement="start"
+            />
+
             <Button
               variant="contained"
               color="primary"
               startIcon={<Edit />}
               onClick={(e) => handlePageEdit(e)}
+              style={{ marginLeft: 10 }}
             >
               Edit
             </Button>
-            {/* <Button
-              variant="contained"
-              onClick={(e) => handleDialogOpen()}
-              startIcon={<Delete />}
-              style={{
-                marginLeft: 10,
-                marginRight: 10,
-                backgroundColor: "#FF0000",
-              }}
-            >
-              Delete
-            </Button> */}
           </div>
         </div>
         <div style={{ display: "flex", margin: 10 }}>
@@ -744,6 +745,27 @@ function StoriesDetails({
             ></img>
           ))}
         </div>
+        <Dialog open={publishedDialog} onClose={handleDialogClose}>
+          <DialogTitle>{"Story"}</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Are you sure you want to{" "}
+              {status === "published" ? "unpublish" : "publish"} this story?
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button onClick={handleDialogClose} color="primary">
+              No
+            </Button>
+            <Button
+              onClick={(e) => handleChangeStatus(e, selected?.uid)}
+              color="primary"
+              autoFocus
+            >
+              Yes
+            </Button>
+          </DialogActions>
+        </Dialog>
       </Paper>
     )
   ) : newStory ? (
@@ -789,27 +811,6 @@ function StoriesDetails({
         value={title}
         onChange={(e) => setTitle(e.target.value)}
       ></TextField>
-      <FormControl component="fieldset">
-        <FormLabel component="legend">Status</FormLabel>
-        <RadioGroup
-          aria-label="type"
-          defaultValue="published"
-          value={status}
-          onChange={handleChangeStatus}
-          name="controlled-radio-buttons-group"
-        >
-          <FormControlLabel
-            value="published"
-            control={<Radio />}
-            label="Published"
-          />
-          <FormControlLabel
-            value="unpublished"
-            control={<Radio />}
-            label="Unpublished"
-          />
-        </RadioGroup>
-      </FormControl>{" "}
       <Typography
         variant="body2"
         color={"textSecondary"}

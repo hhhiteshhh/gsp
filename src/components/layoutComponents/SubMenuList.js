@@ -8,6 +8,7 @@ import List from "@material-ui/core/List";
 import ListItem from "./ListItem";
 import SearchBar from "./SearchBar";
 import "./styles.css";
+import { makeStyles } from "@material-ui/core/styles";
 
 const styles = {
   fab: { position: "absolute", bottom: 16, right: 16 },
@@ -40,7 +41,27 @@ function a11yProps(index) {
   };
 }
 
+const useStyles = makeStyles((theme) => ({
+  root: {
+    // flexGrow: 1,
+    width: 10,
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    flexGrow: 1,
+  },
+  list: {
+    width: 10,
+  },
+  fullList: {
+    width: "auto",
+  },
+}));
 export default function SubMenuList(props) {
+  const classes = useStyles();
+
   const [selectedIndex, setIndex] = useState(-1);
   const [tabIndex, setTab] = useState(0);
   const [searchedData, setSearchedData] = useState(null);
@@ -111,9 +132,12 @@ export default function SubMenuList(props) {
       >
         <Paper square style={styles.paper}>
           <Tabs
+            // className={classes.root}
             value={tabIndex}
             indicatorColor="primary"
             color="white"
+            variant="scrollable"
+            scrollButtons={"auto"}
             onChange={handleTabsChange}
           >
             {props?.tabs?.map((tab, index) => (
