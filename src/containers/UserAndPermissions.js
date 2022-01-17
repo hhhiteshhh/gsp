@@ -8,18 +8,6 @@ function UserAndPermissionsContainer(props) {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // fetch("https://jsonplaceholder.typicode.com/users")
-    //   .then((response) => response.json())
-    //   .then((json) => {
-    //     const users = json.map((element, index) => {
-    //       const user = element;
-    //       user.logo = `https://cdn4.iconfinder.com/data/icons/user-avatar-flat-icons/512/User_Avatar-${
-    //         index + 10
-    //       }-512.png`;
-    //       return user;
-    //     });
-    //     setUsers(users);
-    //   });
     allUsers();
   }, []);
   const allUsers = () => {
@@ -33,7 +21,6 @@ function UserAndPermissionsContainer(props) {
         }
       });
       setUsers(users);
-      // this.setState({ usersData: users });
     });
   };
 

@@ -189,10 +189,6 @@ class UserAndPermissions extends Component {
         setTab={(tab) => {
           this.setState({ currentTab: tab });
         }}
-        // fabClickHandler={(e) => {
-        //   this.props.history.push("/userandpermmision");
-        //   this.setState({ openInviteDialog: true });
-        // }}
       >
         <div
           style={{

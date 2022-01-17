@@ -1,46 +1,43 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import { Route } from "react-router-dom";
 import { withFirebase } from "../firebase";
 import withUser from "../hoc/withUser";
-import { Route } from "react-router-dom";
 import Photographers from "../components/Photographers";
 
-function PhotographersContainer() {
-  const [users, setUsers] = React.useState([]);
-  React.useEffect(() => {
-    fetchUsers();
+function UserAndPermissionsContainer(props) {
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    allUsers();
   }, []);
-  const fetchUsers = () => {
-    fetch("https://jsonplaceholder.typicode.com/users")
-      .then((response) => {
-        return response.json();
-      })
-      .then((json) => {
-        const users1 = json.map((element, index) => {
-          const user = element;
-          user.src = `https://cdn4.iconfinder.com/data/icons/user-avatar-flat-icons/512/User_Avatar-${
-            index + 10
-          }-512.png`;
-          user.logo = user.src;
-          user.status = ["pending", "approved", "unidentified"][
-            Math.floor(Math.random() * 3)
-          ];
-          user.currentStatus = ["pending", "unidentified", "authorized"][
-            Math.floor(Math.random() * 3)
-          ];
-          return user;
-        });
-        setUsers(users1);
+  const allUsers = () => {
+    props.db.collection(`photographers`).onSnapshot((obj) => {
+      const users = [];
+      obj.forEach((doc) => {
+        if (doc.exists) {
+          const user = doc.data();
+          user.id = doc.id;
+          users.push(user);
+        }
       });
+      setUsers(users);
+    });
+  };
+
+  const updateUser = (userId, userDetails) => {
+    return props.db.collection(`photographers`).doc(userId).update(userDetails);
   };
   return (
     <>
       <Route
         exact
         path={["/photographers", "/photographers/:tab/:id"]}
-        render={(props) => <Photographers props={props} users={users}/>}
+        render={(props) => (
+          <Photographers {...props} users={users} updateUser={updateUser} />
+        )}
       />
     </>
   );
 }
 
-export default withFirebase(withUser(PhotographersContainer));
+export default withFirebase(withUser(UserAndPermissionsContainer));
