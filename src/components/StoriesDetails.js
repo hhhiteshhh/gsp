@@ -131,7 +131,9 @@ function StoriesDetails({
         updatedBy: user?.email,
       });
     if (typeof thumbnail !== "string") {
-      const upload = storage.ref(`stories/${thumbnail.name}`).put(thumbnail);
+      const upload = storage
+        .ref(`stories/${title}/thumbnail/${thumbnail.name}`)
+        .put(thumbnail);
       upload.on(
         "state_changed",
         (snapshot) => {
@@ -144,7 +146,7 @@ function StoriesDetails({
         },
         () => {
           storage
-            .ref("stories")
+            .ref(`stories/${title}/thumbnail`)
             .child(thumbnail.name)
             .getDownloadURL()
             .then((url) => {
@@ -158,7 +160,9 @@ function StoriesDetails({
     let storiesUrl = [];
     stories.map((image) => {
       if (!image.url) {
-        const upload = storage.ref(`stories/${image.name}`).put(image);
+        const upload = storage
+          .ref(`stories/${title}/stories/${image.name}`)
+          .put(image);
         upload.on(
           "state_changed",
           (snapshot) => {
@@ -171,7 +175,7 @@ function StoriesDetails({
           },
           () => {
             storage
-              .ref("stories")
+              .ref(`stories/${title}/stories`)
               .child(image.name)
               .getDownloadURL()
               .then((url) => {
@@ -195,7 +199,6 @@ function StoriesDetails({
   };
   const handleAddStory = (e) => {
     e.preventDefault();
-    console.log({ status });
     if (!title || !thumbnail || !stories.length > 0 || status === "") {
       openSnackBarFunction("All fields mandatory");
     } else {
@@ -215,7 +218,7 @@ function StoriesDetails({
           });
           if (typeof thumbnail !== "string") {
             const upload = storage
-              .ref(`stories/${thumbnail.name}`)
+              .ref(`stories/${title}/thumbnail/${thumbnail.name}`)
               .put(thumbnail);
             upload.on(
               "state_changed",
@@ -229,7 +232,7 @@ function StoriesDetails({
               },
               () => {
                 storage
-                  .ref("stories")
+                  .ref(`stories/${title}/thumbnail`)
                   .child(thumbnail.name)
                   .getDownloadURL()
                   .then((url) => {
@@ -243,7 +246,9 @@ function StoriesDetails({
           let storiesUrl = [];
           stories.map((image) => {
             if (typeof image !== "string") {
-              const upload = storage.ref(`stories/${image.name}`).put(image);
+              const upload = storage
+                .ref(`stories/${title}/stories/${image.name}`)
+                .put(image);
               upload.on(
                 "state_changed",
                 (snapshot) => {
@@ -256,7 +261,7 @@ function StoriesDetails({
                 },
                 () => {
                   storage
-                    .ref("stories")
+                    .ref(`stories/${title}/stories`)
                     .child(image.name)
                     .getDownloadURL()
                     .then((url) => {
@@ -276,53 +281,27 @@ function StoriesDetails({
   };
   const handleSaveStory = (e) => {
     e.preventDefault();
-    db.collection("stories")
-      .add({
-        status: "saved",
-        title: title ? title : "",
-        timestamp: firebase.firestore.FieldValue.serverTimestamp(),
-        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-        createdBy: user?.email,
-        updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        updatedBy: user?.email,
-        stories: [],
-        thumbnail: "",
-      })
-      .then((docRef) => {
-        db.collection("stories").doc(docRef.id).update({
-          uid: docRef.id,
-        });
-        if (typeof thumbnail !== "string") {
-          const upload = storage
-            .ref(`stories/${thumbnail.name}`)
-            .put(thumbnail);
-          upload.on(
-            "state_changed",
-            (snapshot) => {
-              const progress = Math.round(
-                (snapshot.bytesTransferred / snapshot.totalBytes) * 100
-              );
-            },
-            (error) => {
-              alert(error.message);
-            },
-            () => {
-              storage
-                .ref("stories")
-                .child(thumbnail.name)
-                .getDownloadURL()
-                .then((url) => {
-                  db.collection("stories").doc(docRef.id).update({
-                    thumbnail: url,
-                  });
-                });
-            }
-          );
-        }
-        let storiesUrl = [];
-        stories.map((image) => {
-          if (typeof image !== "string") {
-            const upload = storage.ref(`stories/${image.name}`).put(image);
+    if (title) {
+      db.collection("stories")
+        .add({
+          status: "saved",
+          title: title ? title : "",
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+          createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+          createdBy: user?.email,
+          updatedAt: firebase.firestore.FieldValue.serverTimestamp(),
+          updatedBy: user?.email,
+          stories: [],
+          thumbnail: "",
+        })
+        .then((docRef) => {
+          db.collection("stories").doc(docRef.id).update({
+            uid: docRef.id,
+          });
+          if (typeof thumbnail !== "string") {
+            const upload = storage
+              .ref(`stories/${title}/thumbnail/${thumbnail.name}`)
+              .put(thumbnail);
             upload.on(
               "state_changed",
               (snapshot) => {
@@ -335,22 +314,55 @@ function StoriesDetails({
               },
               () => {
                 storage
-                  .ref("stories")
-                  .child(image.name)
+                  .ref(`stories/${title}/thumbnail`)
+                  .child(thumbnail.name)
                   .getDownloadURL()
                   .then((url) => {
-                    storiesUrl.push({ type: "image", url: url });
                     db.collection("stories").doc(docRef.id).update({
-                      stories: storiesUrl,
+                      thumbnail: url,
                     });
                   });
               }
             );
+            console.log("uploaded");
           }
+          let storiesUrl = [];
+          stories.map((image) => {
+            if (typeof image !== "string") {
+              const upload = storage
+                .ref(`stories/${title}/stories${image.name}`)
+                .put(image);
+              upload.on(
+                "state_changed",
+                (snapshot) => {
+                  const progress = Math.round(
+                    (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+                  );
+                },
+                (error) => {
+                  alert(error.message);
+                },
+                () => {
+                  storage
+                    .ref(`stories/${title}/stories`)
+                    .child(image.name)
+                    .getDownloadURL()
+                    .then((url) => {
+                      storiesUrl.push({ type: "image", url: url });
+                      db.collection("stories").doc(docRef.id).update({
+                        stories: storiesUrl,
+                      });
+                    });
+                }
+              );
+            }
+          });
         });
-      });
-    openSnackBarFunction("Added Successfully");
-    handleClosePageNew(e);
+      openSnackBarFunction("Added Successfully");
+      handleClosePageNew(e);
+    } else {
+      openSnackBarFunction("Please enter title ");
+    }
   };
   const handlePublishedDialog = (e) => {
     e.preventDefault();

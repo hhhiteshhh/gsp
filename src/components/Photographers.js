@@ -43,7 +43,7 @@ class Photographers extends Component {
       tabs: [
         {
           label: "Approved",
-          tooltip: "Click to approve approved users",
+          tooltip: "Click to see approved users",
           data: props.users,
           route: "/photographers/approved",
           primaryField: "firstName",
@@ -63,7 +63,7 @@ class Photographers extends Component {
         },
         {
           label: "Rejected",
-          tooltip: "Click to approve approved users",
+          tooltip: "Click to see rejected users",
           data: props.users,
           route: "/photographers/rejected",
           primaryField: "firstName",

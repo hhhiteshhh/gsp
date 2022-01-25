@@ -207,7 +207,7 @@ function DestinationDetails({
     e.preventDefault();
     if (typeof newAvatarImage !== "string") {
       const upload = storage
-        .ref(`location/${newAvatarImage.name}`)
+        .ref(`destination/${newCity}/avatar/${newAvatarImage.name}`)
         .put(newAvatarImage);
       upload.on(
         "state_changed",
@@ -221,7 +221,7 @@ function DestinationDetails({
         },
         () => {
           storage
-            .ref("location")
+            .ref(`destination/${newCity}/avatar`)
             .child(newAvatarImage.name)
             .getDownloadURL()
             .then((url) => {
@@ -235,7 +235,9 @@ function DestinationDetails({
     let memoriesImagesURl = [];
     newMemoriesImages.map((image) => {
       if (typeof image !== "string") {
-        const upload = storage.ref(`location/${image.name}`).put(image);
+        const upload = storage
+          .ref(`destination/${newCity}/memories/${image.name}`)
+          .put(image);
         upload.on(
           "state_changed",
           (snapshot) => {
@@ -248,7 +250,7 @@ function DestinationDetails({
           },
           () => {
             storage
-              .ref("location")
+              .ref(`destination/${newCity}/memories`)
               .child(image.name)
               .getDownloadURL()
               .then((url) => {
@@ -269,7 +271,9 @@ function DestinationDetails({
     let displayImagesURl = [];
     newDisplayImages.map((image) => {
       if (typeof image !== "string") {
-        const upload = storage.ref(`location/${image.name}`).put(image);
+        const upload = storage
+          .ref(`destination/${newCity}/displayImages/${image.name}`)
+          .put(image);
         upload.on(
           "state_changed",
           (snapshot) => {
@@ -282,7 +286,7 @@ function DestinationDetails({
           },
           () => {
             storage
-              .ref("location")
+              .ref(`destination/${newCity}/displayImages`)
               .child(image.name)
               .getDownloadURL()
               .then((url) => {
@@ -360,7 +364,7 @@ function DestinationDetails({
             });
             if (typeof newAvatarImage !== "string") {
               const upload = storage
-                .ref(`location/${newAvatarImage.name}`)
+                .ref(`destination/${newCity}/avatar/${newAvatarImage.name}`)
                 .put(newAvatarImage);
               upload.on(
                 "state_changed",
@@ -374,7 +378,7 @@ function DestinationDetails({
                 },
                 () => {
                   storage
-                    .ref("location")
+                    .ref(`destination/${newCity}/avatar`)
                     .child(newAvatarImage.name)
                     .getDownloadURL()
                     .then((url) => {
@@ -388,7 +392,9 @@ function DestinationDetails({
             let memoriesImagesURl = [];
             newMemoriesImages.map((image) => {
               if (typeof image !== "string") {
-                const upload = storage.ref(`location/${image.name}`).put(image);
+                const upload = storage
+                  .ref(`destination/${newCity}/memories/${image.name}`)
+                  .put(image);
                 upload.on(
                   "state_changed",
                   (snapshot) => {
@@ -401,7 +407,7 @@ function DestinationDetails({
                   },
                   () => {
                     storage
-                      .ref("location")
+                      .ref(`destination/${newCity}/memories`)
                       .child(image.name)
                       .getDownloadURL()
                       .then((url) => {
@@ -417,7 +423,9 @@ function DestinationDetails({
             let displayImagesUrl = [];
             newDisplayImages.map((image) => {
               if (typeof image !== "string") {
-                const upload = storage.ref(`location/${image.name}`).put(image);
+                const upload = storage
+                  .ref(`destination/${newCity}/displayImages/${image.name}`)
+                  .put(image);
                 upload.on(
                   "state_changed",
                   (snapshot) => {
@@ -430,7 +438,7 @@ function DestinationDetails({
                   },
                   () => {
                     storage
-                      .ref("location")
+                      .ref(`destination/${newCity}/displayImages`)
                       .child(image.name)
                       .getDownloadURL()
                       .then((url) => {

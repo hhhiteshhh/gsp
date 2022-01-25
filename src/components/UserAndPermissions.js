@@ -48,7 +48,7 @@ class UserAndPermissions extends Component {
       tabs: [
         {
           label: "Approved",
-          tooltip: "Click to approve approved users",
+          tooltip: "Click to see approved users",
           data: props.users,
           route: "/userandpermmision/approved",
           primaryField: "displayName",
